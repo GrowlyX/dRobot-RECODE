@@ -1,0 +1,15 @@
+#
+#  dRobot-RECODE - by GrowlyX
+#
+settings:
+  token: ""
+  prefix: "-"
+  status: "DO_NOT_DISTURB"
+  instance-activity: "Loading..."
+  owner-id: ""
+  admin-ids:
+    - ""
+activity-scroll:
+  enabled: true
+  strings:
+    - ""
