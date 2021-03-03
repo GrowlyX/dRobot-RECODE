@@ -95,5 +95,11 @@
             <scope>compile</scope>
             <type>pom</type>
         </dependency>
+        <dependency>
+            <groupId>com.mashape.unirest</groupId>
+            <artifactId>unirest-java</artifactId>
+            <version>1.4.9</version>
+            <type>jar</type>
+        </dependency>
     </dependencies>
 </project>

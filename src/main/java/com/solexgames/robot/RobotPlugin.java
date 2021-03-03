@@ -2,6 +2,8 @@ package com.solexgames.robot;
 
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
+import com.solexgames.core.CorePlugin;
+import com.solexgames.robot.command.CatCommand;
 import com.solexgames.robot.command.PunishmentInfoCommand;
 import com.solexgames.robot.command.ServersCommand;
 import com.solexgames.robot.command.SyncCommand;
@@ -34,26 +36,36 @@ public final class RobotPlugin extends JavaPlugin {
     private CommandClientBuilder commandClient;
     private EventWaiter waiter;
 
+    private String mainHex;
+    private String supportRole;
+
     @Override
     public void onEnable() {
         instance = this;
+
+        this.saveDefaultConfig();
 
         this.waiter = new EventWaiter();
         this.commandClient = new CommandClientBuilder();
 
         this.commandClient.setOwnerId(this.getConfig().getString("settings.owner-id"));
         this.commandClient.setCoOwnerIds(this.getConfig().getStringList("settings.admin-ids").toArray(new String[]{}));
-        this.commandClient.setEmojis("\uD83D\uDE03", "\uD83D\uDE2E", "\uD83D\uDE26");
+        this.commandClient.setEmojis("✅", "\uD83D\uDFE0", "\uD83D\uDEA7");
         this.commandClient.setPrefix(this.getConfig().getString("settings.prefix"));
+        this.commandClient.setServerInvite(CorePlugin.getInstance().getServerManager().getNetwork().getDiscordLink());
 
         this.commandClient.addCommands(
                 new PunishmentInfoCommand(),
                 new ServersCommand(),
+                new CatCommand(),
                 new SyncCommand()
         );
 
+        this.mainHex = this.getConfig().getString("settings.hex");
+        this.supportRole = this.getConfig().getString("settings.support-role-name");
+
         try {
-            this.discord = JDABuilder.createDefault("token")
+            this.discord = JDABuilder.createDefault(this.getConfig().getString("settings.token"))
                     .setStatus(OnlineStatus.valueOf(this.getConfig().getString("settings.status").toUpperCase().replace(" ", "_")))
                     .setActivity(Activity.playing(this.getConfig().getString("settings.activity")))
                     .addEventListeners(this.waiter, this.commandClient.build())

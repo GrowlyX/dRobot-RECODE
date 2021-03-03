@@ -1,0 +1,19 @@
+#
+#  dRobot-RECODE - by GrowlyX
+#
+settings:
+  token: "Nzk0OTk1NjM1MDU2MDE3NDM5.X_C7YQ.C2wBUU7NKFGzr1zdCA1-nOf8jdM"
+  prefix: "-"
+  status: "DO_NOT_DISTURB"
+  activity: "eu.potclub.vip"
+  owner-id: "559497100296060939"
+  support-role-name: "Senior Staff"
+  hex: "#ff06f3"
+  admin-ids:
+    - "391324829577379840"
+activity-scroll:
+  enabled: true
+  strings:
+    - "eu.potclub.vip"
+    - "na.potclub.vip"
+    - "Watching <online> Online"

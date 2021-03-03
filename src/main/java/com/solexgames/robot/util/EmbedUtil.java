@@ -4,6 +4,7 @@ import com.solexgames.robot.RobotPlugin;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 
@@ -23,11 +24,15 @@ public final class EmbedUtil {
         throw new IllegalStateException("You cannot instantiate a utility class.");
     }
 
-    public static EmbedBuilder getEmbed(User user, String title, String value) {
-        return new EmbedBuilder().appendDescription(value).setTitle(title).setColor(Color.ORANGE).setTimestamp(OffsetDateTime.now()).setFooter(user.getAsTag(), user.getAvatarUrl());
+    public static MessageEmbed getEmbed(User user, String title, String value, Color color) {
+        return new EmbedBuilder().appendDescription(value).setTitle(title).setColor(color).setTimestamp(OffsetDateTime.now()).setFooter(user.getAsTag(), user.getAvatarUrl()).build();
     }
 
-    public static void sendEmbed(User user, String title, String value, TextChannel channel) {
+    public static MessageEmbed getEmbed(User user, String title, String value, Color color, String img) {
+        return new EmbedBuilder().setImage(img).appendDescription(value).setTitle(title).setColor(color).setTimestamp(OffsetDateTime.now()).setFooter(user.getAsTag(), user.getAvatarUrl()).build();
+    }
+
+    /*public static void sendEmbed(User user, String title, String value, TextChannel channel) {
         EmbedBuilder embed = new EmbedBuilder().appendDescription(value).setTitle(title).setColor(Color.ORANGE).setTimestamp(OffsetDateTime.now()).setFooter(user.getAsTag(), user.getAvatarUrl());
         channel.sendMessage(embed.build()).queue();
     }
@@ -70,5 +75,5 @@ public final class EmbedUtil {
             embed.setFooter(user.getAsTag(), user.getAvatarUrl());
         }
         channel.sendMessage(embed.build()).queue();
-    }
+    }*/
 }
