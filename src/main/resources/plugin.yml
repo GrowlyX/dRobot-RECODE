@@ -1,0 +1,3 @@
+name: dRobot
+version: ${project.version}
+main: com.solexgames.robot.RobotPlugin
