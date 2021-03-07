@@ -3,10 +3,7 @@ package com.solexgames.robot;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import com.solexgames.core.CorePlugin;
-import com.solexgames.robot.command.CatCommand;
-import com.solexgames.robot.command.PunishmentInfoCommand;
-import com.solexgames.robot.command.ServersCommand;
-import com.solexgames.robot.command.SyncCommand;
+import com.solexgames.robot.command.*;
 import com.solexgames.robot.task.BotActivityTask;
 import lombok.Getter;
 import lombok.Setter;
@@ -58,6 +55,9 @@ public final class RobotPlugin extends JavaPlugin {
                 new PunishmentInfoCommand(),
                 new ServersCommand(),
                 new CatCommand(),
+                new DogCommand(),
+                new PersonCommand(),
+                new ProfileCommand(),
                 new SyncCommand()
         );
 

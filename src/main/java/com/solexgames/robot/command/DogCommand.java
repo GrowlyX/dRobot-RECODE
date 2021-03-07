@@ -11,25 +11,26 @@ import com.solexgames.robot.util.EmbedUtil;
 
 import java.awt.*;
 
-public class CatCommand extends Command {
+public class DogCommand extends Command {
 
-    public CatCommand() {
-        this.name = "cat";
-        this.help = "Get a picture of a cute cat!";
+    public DogCommand() {
+        this.name = "dog";
+        this.help = "Get a picture of a cute dog!";
         this.guildOnly = false;
     }
 
     @Override
     protected void execute(CommandEvent event) {
 
-        Unirest.get("https://aws.random.cat/meow").asJsonAsync(new Callback<JsonNode>(){
+        Unirest.get("https://dog.ceo/api/breeds/image/random").asJsonAsync(new Callback<JsonNode>(){
+
             @Override
             public void completed(HttpResponse<JsonNode> hr) {
-                event.reply(EmbedUtil.getEmbed(event.getAuthor(), "**Cat**", "Meow! Here's a very cute cat!", Color.ORANGE, hr.getBody().getObject().getString("file")));
+                event.reply(EmbedUtil.getEmbed(event.getAuthor(), "**Dog**", "Woof! Here's a very cute dog!", Color.ORANGE, hr.getBody().getObject().getString("message")));
             }
 
             @Override
-            public void failed(UnirestException e) {
+            public void failed(UnirestException ue) {
                 event.reactError();
             }
 

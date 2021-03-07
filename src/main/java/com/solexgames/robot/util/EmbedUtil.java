@@ -32,6 +32,10 @@ public final class EmbedUtil {
         return new EmbedBuilder().setImage(img).appendDescription(value).setTitle(title).setColor(color).setTimestamp(OffsetDateTime.now()).setFooter(user.getAsTag(), user.getAvatarUrl()).build();
     }
 
+    public static EmbedBuilder getProfile(User user, String title, Color color, String thumb) {
+        return new EmbedBuilder().setThumbnail(thumb).setTitle(title).setColor(color).setTimestamp(OffsetDateTime.now()).setFooter(user.getAsTag(), user.getAvatarUrl());
+    }
+
     /*public static void sendEmbed(User user, String title, String value, TextChannel channel) {
         EmbedBuilder embed = new EmbedBuilder().appendDescription(value).setTitle(title).setColor(Color.ORANGE).setTimestamp(OffsetDateTime.now()).setFooter(user.getAsTag(), user.getAvatarUrl());
         channel.sendMessage(embed.build()).queue();
