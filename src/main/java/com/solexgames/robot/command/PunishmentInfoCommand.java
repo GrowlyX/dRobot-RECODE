@@ -32,7 +32,7 @@ public class PunishmentInfoCommand extends Command {
                     Punishment punishment = Punishment.getByIdentification(args[0]);
 
                     if (punishment != null) {
-                        event.reply(EmbedUtil.getEmbed(event.getAuthor(), "**Punishment Information**", "ID: **" + punishment.getPunishIdentification() + "**\nReason: **" + punishment.getReason() + "**\nTarget: **" + UUIDUtil.getName(punishment.getTarget().toString()) + "**\nIssuer: **" + punishment.getIssuerName() + "**\nExpiring: **" + punishment.getExpirationString() + "**", java.awt.Color.decode(RobotPlugin.getInstance().getMainHex())));
+                        event.reply(EmbedUtil.getEmbed(event.getAuthor(), "**Punishment Information**", "ID: **" + punishment.getPunishIdentification() + "**\nReason: **" + punishment.getReason() + "**\nTarget: **" + UUIDUtil.fetchName(punishment.getTarget()) + "**\nIssuer: **" + punishment.getIssuerName() + "**\nExpiring: **" + punishment.getExpirationString() + "**", java.awt.Color.decode(RobotPlugin.getInstance().getMainHex())));
                     } else {
                         event.reply(EmbedUtil.getEmbed(event.getAuthor(), "**Invalid Punishment**", "That punishment does not exist!", java.awt.Color.RED));
                     }

@@ -21,7 +21,6 @@ public class DogCommand extends Command {
 
     @Override
     protected void execute(CommandEvent event) {
-
         Unirest.get("https://dog.ceo/api/breeds/image/random").asJsonAsync(new Callback<JsonNode>(){
 
             @Override

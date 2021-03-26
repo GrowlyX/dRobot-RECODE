@@ -2,18 +2,19 @@
 #  dRobot-RECODE - by GrowlyX
 #
 settings:
-  token: "Nzk0OTk1NjM1MDU2MDE3NDM5.X_C7YQ.C2wBUU7NKFGzr1zdCA1-nOf8jdM"
+  token: "ODE5NjQwMjMzMDQ5ODQ5OTQz.YEpjcw.SrhxES9a4VQfFXBWTGbtq9sf54I"
   prefix: "-"
   status: "DO_NOT_DISTURB"
-  activity: "eu.potclub.vip"
+  activity: "eventis.club"
   owner-id: "559497100296060939"
-  support-role-name: "Senior Staff"
+  support-role-name: "Staff"
   hex: "#ff06f3"
   admin-ids:
-    - "391324829577379840"
+    - "266737992603795456"
 activity-scroll:
   enabled: true
   strings:
-    - "eu.potclub.vip"
-    - "na.potclub.vip"
+    - "eventis.club"
+    - "Watching your messages"
     - "Watching <online> Online"
+

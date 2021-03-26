@@ -73,9 +73,9 @@
         <dependency>
             <groupId>com.solexgames.core</groupId>
             <artifactId>Scandium</artifactId>
-            <version>BUILD-79cf55b</version>
+            <version>BUILD-b3730d5</version>
             <scope>system</scope>
-            <systemPath>${basedir}/lib/Scandium-BUILD-79cf55b.jar</systemPath>
+            <systemPath>${basedir}/lib/Scandium-BUILD-b3730d5.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>

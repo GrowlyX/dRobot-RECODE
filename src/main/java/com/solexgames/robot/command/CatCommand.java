@@ -21,8 +21,7 @@ public class CatCommand extends Command {
 
     @Override
     protected void execute(CommandEvent event) {
-
-        Unirest.get("https://aws.random.cat/meow").asJsonAsync(new Callback<JsonNode>(){
+        Unirest.get("https://aws.random.cat/meow").asJsonAsync(new Callback<JsonNode>() {
             @Override
             public void completed(HttpResponse<JsonNode> hr) {
                 event.reply(EmbedUtil.getEmbed(event.getAuthor(), "**Cat**", "Meow! Here's a very cute cat!", Color.ORANGE, hr.getBody().getObject().getString("file")));

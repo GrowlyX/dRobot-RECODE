@@ -8,7 +8,6 @@ import com.solexgames.core.server.NetworkServer;
 import com.solexgames.robot.RobotPlugin;
 import com.solexgames.robot.util.EmbedUtil;
 import com.solexgames.robot.util.ServerUtil;
-import net.dv8tion.jda.api.entities.Member;
 
 public class ServersCommand extends Command {
 
