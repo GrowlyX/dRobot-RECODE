@@ -1,19 +1,14 @@
-package com.solexgames.robot.command;
+package com.solexgames.robot.command.impl;
 
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.solexgames.core.CorePlugin;
-import com.solexgames.core.player.punishment.Punishment;
-import com.solexgames.core.util.UUIDUtil;
 import com.solexgames.robot.RobotPlugin;
 import com.solexgames.robot.util.EmbedUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Member;
-import org.bson.Document;
-import org.bukkit.Bukkit;
 
-import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 public class ProfileCommand extends Command {
 
@@ -28,22 +23,28 @@ public class ProfileCommand extends Command {
 
     @Override
     protected void execute(CommandEvent event) {
-        String[] args = event.getArgs().split(" ");
+        final String[] args = event.getArgs().split(" ");
 
-        Bukkit.getScheduler().runTaskAsynchronously(RobotPlugin.getInstance(), () -> {
-            if (event.getArgs().isEmpty()) {
-                event.reply(EmbedUtil.getEmbed(event.getAuthor(), "**Usage**", this.name + " " + this.arguments, java.awt.Color.RED));
-            } else {
-                try {
-                    Map.Entry<UUID, String> map = UUIDUtil.getUUID(args[0]);
-                    Document document = CorePlugin.getInstance().getPlayerManager().getDocumentByName(map.getValue()).orElse(null);
+        if (event.getArgs().isEmpty()) {
+            event.reply(EmbedUtil.getEmbed(event.getAuthor(), "**Usage**", this.name + " " + this.arguments, java.awt.Color.RED));
+            return;
+        }
 
+        final UUID uuid = CorePlugin.getInstance().getUuidCache().getUuidFromUsername(args[0]);
+
+        if (uuid == null) {
+            event.reply(EmbedUtil.getEmbed(event.getAuthor(), "**Invalid Player**", "The player with the name '" + args[0] + "' does not exist!", java.awt.Color.RED));
+            return;
+        }
+
+        CompletableFuture.supplyAsync(() -> CorePlugin.getInstance().getPlayerManager().getDocumentByUuid(uuid).orElse(null))
+                .thenAccept(document -> {
                     if (document != null) {
-                        EmbedBuilder builder = EmbedUtil.getProfile(
+                        final EmbedBuilder builder = EmbedUtil.getProfile(
                                 event.getAuthor(),
-                                "**" + map.getValue() + "'s Profile:**",
+                                "**" + document.getString("name") + "'s Profile:**",
                                 java.awt.Color.decode(RobotPlugin.getInstance().getMainHex()),
-                                "https://visage.surgeplay.com/head/512/" + map.getKey().toString()
+                                "https://visage.surgeplay.com/head/512/" + document.getString("name")
                         );
 
                         builder.addField("Rank", document.getString("rankName"), true);
@@ -52,15 +53,12 @@ public class ProfileCommand extends Command {
                         builder.addField("Last Joined", document.getString("lastJoined"), true);
                         builder.addField("First Joined", document.getString("lastJoined"), true);
                         builder.addField("Prefix", document.getString("appliedPrefix"), true);
+                        builder.addField("Banned", document.getBoolean("currentlyBanned").toString(), true);
 
                         event.reply(builder.build());
                     } else {
-                        event.reply(EmbedUtil.getEmbed(event.getAuthor(), "**Invalid Player**", "That player's profile does not exist!", java.awt.Color.RED));
+                        event.reply(EmbedUtil.getEmbed(event.getAuthor(), "**Invalid Player**", "The player with the name '" + args[0] + "' does not exist!", java.awt.Color.RED));
                     }
-                } catch (Exception ignored) {
-                    event.reply(EmbedUtil.getEmbed(event.getAuthor(), "**Invalid Player**", "That player does not exist!", java.awt.Color.RED));
-                }
-            }
-        });
+                });
     }
 }

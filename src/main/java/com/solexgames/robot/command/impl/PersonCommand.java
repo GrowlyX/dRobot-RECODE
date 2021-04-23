@@ -1,4 +1,4 @@
-package com.solexgames.robot.command;
+package com.solexgames.robot.command.impl;
 
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;

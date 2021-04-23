@@ -1,4 +1,4 @@
-package com.solexgames.robot.command;
+package com.solexgames.robot.command.impl;
 
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
@@ -21,15 +21,15 @@ public class PunishmentInfoCommand extends Command {
 
     @Override
     protected void execute(CommandEvent event) {
-        String[] args = event.getArgs().split(" ");
-        Member member = event.getMember();
+        final String[] args = event.getArgs().split(" ");
+        final Member member = event.getMember();
 
         if (event.getAuthor() != null) {
             if (member.getRoles().contains(event.getGuild().getRolesByName(RobotPlugin.getInstance().getSupportRole(), false).get(0))) {
                 if (event.getArgs().isEmpty()) {
                     event.reply(EmbedUtil.getEmbed(event.getAuthor(), "**Usage**", this.name + " " + this.arguments, java.awt.Color.RED));
                 } else {
-                    Punishment punishment = Punishment.getByIdentification(args[0]);
+                    final Punishment punishment = Punishment.getByIdentification(args[0]);
 
                     if (punishment != null) {
                         event.reply(EmbedUtil.getEmbed(event.getAuthor(), "**Punishment Information**", "ID: **" + punishment.getPunishIdentification() + "**\nReason: **" + punishment.getReason() + "**\nTarget: **" + UUIDUtil.fetchName(punishment.getTarget()) + "**\nIssuer: **" + punishment.getIssuerName() + "**\nExpiring: **" + punishment.getExpirationString() + "**", java.awt.Color.decode(RobotPlugin.getInstance().getMainHex())));

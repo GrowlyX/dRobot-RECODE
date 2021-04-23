@@ -1,4 +1,4 @@
 package com.solexgames.robot.command;
 
-public class PollCommand {
+public abstract class BaseCommand {
 }

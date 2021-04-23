@@ -3,7 +3,7 @@ package com.solexgames.robot;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import com.solexgames.core.CorePlugin;
-import com.solexgames.robot.command.*;
+import com.solexgames.robot.command.impl.*;
 import com.solexgames.robot.task.BotActivityTask;
 import lombok.Getter;
 import lombok.Setter;
@@ -68,8 +68,7 @@ public final class RobotPlugin extends JavaPlugin {
             this.discord = JDABuilder.createDefault(this.getConfig().getString("settings.token"))
                     .setStatus(OnlineStatus.valueOf(this.getConfig().getString("settings.status").toUpperCase().replace(" ", "_")))
                     .setActivity(Activity.playing(this.getConfig().getString("settings.activity")))
-                    .addEventListeners(this.waiter, this.commandClient.build())
-                    .build();
+                    .addEventListeners(this.waiter, this.commandClient.build()).build();
         } catch (LoginException loginException) {
             this.getLogger().info("Could not log in to your Bot Client!");
             this.getLogger().info("Maybe double check your token?");
