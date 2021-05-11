@@ -18,8 +18,8 @@ import java.time.OffsetDateTime;
 @UtilityClass
 public final class EmbedUtil {
 
-    public static MessageEmbed getEmbed(User user, String title, String value, Color color) {
-        return new EmbedBuilder().appendDescription(value).setTitle(title).setColor(color).setTimestamp(OffsetDateTime.now()).setFooter(user.getAsTag(), user.getAvatarUrl()).build();
+    public static EmbedBuilder getEmbed(User user, String title, String value, Color color) {
+        return new EmbedBuilder().appendDescription(value).setTitle(title).setColor(color).setTimestamp(OffsetDateTime.now()).setFooter(user.getAsTag(), user.getAvatarUrl());
     }
 
     public static MessageEmbed getEmbed(User user, String title, String value, Color color, String img) {

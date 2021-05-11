@@ -52,6 +52,10 @@
 
     <repositories>
         <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+        <repository>
             <id>spigotmc-repo</id>
             <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
         </repository>
@@ -87,11 +91,9 @@
             <version>4.2.0_219</version>
         </dependency>
         <dependency>
-            <groupId>com.jagrosh</groupId>
-            <artifactId>jda-utilities</artifactId>
-            <version>3.0.5</version>
-            <scope>compile</scope>
-            <type>pom</type>
+            <groupId>com.github.Kaktushose</groupId>
+            <artifactId>jda-commands</artifactId>
+            <version>1.1.1</version>
         </dependency>
         <dependency>
             <groupId>com.mashape.unirest</groupId>

@@ -7,13 +7,5 @@ settings:
   status: "DO_NOT_DISTURB"
   activity: "eventis.club"
   owner-id: "559497100296060939"
-  support-role-name: "Staff"
   hex: "#ff06f3"
-  admin-ids:
-    - "266737992603795456"
-activity-scroll:
-  enabled: true
-  strings:
-    - "eventis.club"
-    - "Watching your messages"
-    - "Watching <online> Online"
+  sync-panel-bg: "https://cdn.discordapp.com/attachments/839431125196996618/841697784691687424/pvpbar-header.png

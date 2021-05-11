@@ -1,20 +1,19 @@
 package com.solexgames.robot.task;
 
-import com.solexgames.core.CorePlugin;
 import com.solexgames.robot.RobotPlugin;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.managers.Presence;
-import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * JDA Activity Switch runnable.
+ * <p></p>
+ *
  * @author GrowlyX
  * @since 3/3/2021
- * <p>
- * JDA Activity Switch runnable.
  */
 
 public class BotActivityTask extends BukkitRunnable {
@@ -31,7 +30,7 @@ public class BotActivityTask extends BukkitRunnable {
 
     @Override
     public void run() {
-        int newIndex = ++lastCount;
+        int newIndex = lastCount + 1;
 
         if (newIndex > this.activities.size()) {
             newIndex = 0;
