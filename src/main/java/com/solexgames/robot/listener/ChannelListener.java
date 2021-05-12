@@ -6,14 +6,21 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
 
+@SuppressWarnings("all")
 public class ChannelListener extends ListenerAdapter {
 
     @Override
     public void onMessageReceived(@NotNull MessageReceivedEvent event) {
-        if (event.getChannel().getName().contains("sync")) {
-            if (!event.getMessage().getContentRaw().equals("-linkaccount") || !event.getMessage().getContentRaw().equals("-sync") || !event.getMessage().getContentRaw().equals("-link")) {
-                Bukkit.getScheduler().runTaskLater(RobotPlugin.getInstance(), () -> event.getMessage().delete().queue(), 40L);
-            }
+        final String channelName = event.getChannel().getName();
+        final String rawMessage = event.getMessage().getContentRaw();
+        final String syncLabel = RobotPlugin.getInstance().getLangMap().get("settings|prefix") + "sync";
+
+        if (channelName.equals(RobotPlugin.getInstance().getLangMap().get("syncing|channel")) && !rawMessage.equals(syncLabel)) {
+            Bukkit.getScheduler().runTaskLater(RobotPlugin.getInstance(), () -> {
+                if (event.getMessage() != null) {
+                    event.getMessage().delete().queue();
+                }
+            }, 40L);
         }
     }
 }

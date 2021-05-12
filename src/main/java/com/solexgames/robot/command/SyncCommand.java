@@ -12,14 +12,13 @@ import com.solexgames.robot.RobotPlugin;
 import com.solexgames.robot.util.EmbedUtil;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.exceptions.HierarchyException;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 
 @CommandController
 public class SyncCommand {
 
-    @Command(value = {"sync", "link", "linkaccount"}, name = "Sync Command", usage = "{prefix}sync", desc = "Sync your discord to your in-game account!", category = "Account Syncing")
+    @Command(value = {"sync"}, name = "Sync Command", usage = "{prefix}sync", desc = "Sync your discord to your in-game account!", category = "Syncing")
     public void onSync(CommandEvent event, String player) {
         final Member member = event.getMember();
 
@@ -31,29 +30,42 @@ public class SyncCommand {
         final NetworkPlayer networkPlayer = CorePlugin.getInstance().getPlayerManager().getPlayerFromSyncCode(player);
 
         if (networkPlayer == null) {
-            event.reply(EmbedUtil.getEmbed(member.getUser(), "**Invalid Code**", "I'm sorry, but that's not a valid code. Please double check your code or contact staff.", java.awt.Color.RED),
-                    message -> Bukkit.getScheduler().runTaskLater(RobotPlugin.getInstance(), () -> message.delete().queue(), 100L)
+            event.reply(EmbedUtil.getEmbed(member.getUser(), RobotPlugin.getInstance().getLangMap().get("invalid-code|title"), RobotPlugin.getInstance().getLangMap().get("invalid-code|description"), java.awt.Color.RED),
+                    message -> Bukkit.getScheduler().runTaskLater(RobotPlugin.getInstance(), () -> {
+                        if (message != null) {
+                            message.delete().queue();
+                        }
+                    }, 100L)
             );
             return;
         }
 
         if (networkPlayer.isSynced()) {
-            event.reply(EmbedUtil.getEmbed(member.getUser(), "**Already Synced**", "You're already synced to an account!\n\nType `/unsync` in chat to unsync your account and rejoin to setup syncing again.", java.awt.Color.RED),
-                    message -> Bukkit.getScheduler().runTaskLater(RobotPlugin.getInstance(), () -> message.delete().queue(), 100L)
+            event.reply(EmbedUtil.getEmbed(member.getUser(), RobotPlugin.getInstance().getLangMap().get("already-synced|title"), RobotPlugin.getInstance().getLangMap().get("already-synced|description"), java.awt.Color.RED),
+                    message -> Bukkit.getScheduler().runTaskLater(RobotPlugin.getInstance(), () -> {
+                        if (message != null) {
+                            message.delete().queue();
+                        }
+                    }, 100L)
             );
             return;
         }
 
-        final Role role = event.getGuild().getRolesByName("Verified", false).get(0);
+        final Role role = event.getGuild().getRolesByName(RobotPlugin.getInstance().getLangMap().get("syncing|role"), false).get(0);
 
         if (role == null) {
-            event.reply("Something went wrong ERR: 01");
+            event.reply("Something went wrong while trying to execute that command. Please contact a server admin asap.");
+            event.reply("Result: **\"The role with the name " + RobotPlugin.getInstance().getLangMap().get("syncing|role") + " does not exist.\"**");
             return;
         }
 
         event.getMessage().delete().queue();
-        event.reply(EmbedUtil.getEmbed(member.getUser(), "**Synced**", "You've successfully synced your discord account to the account with the username: `" + networkPlayer.getName() + "`! \n\nYou've also been given your **Verified** tag, which you can equip with the `/tags` command in-game!", java.awt.Color.GREEN),
-                message -> Bukkit.getScheduler().runTaskLater(RobotPlugin.getInstance(), () -> message.delete().queue(), 80L)
+        event.reply(EmbedUtil.getEmbed(member.getUser(), RobotPlugin.getInstance().getLangMap().get("successful-sync|title"), RobotPlugin.getInstance().getLangMap().get("successful-sync|title").replace("<playerName>", networkPlayer.getName()), java.awt.Color.GREEN),
+                message -> Bukkit.getScheduler().runTaskLater(RobotPlugin.getInstance(), () -> {
+                    if (message != null) {
+                        message.delete().queue();
+                    }
+                }, 100L)
         );
 
         RedisUtil.publishAsync(RedisUtil.syncDiscord(member.getUser().getAsTag(), networkPlayer.getName()));
@@ -62,16 +74,16 @@ public class SyncCommand {
         final String prefix = ChatColor.stripColor(Color.translate(rank.getPrefix()));
         final String rankName = rank.getName();
 
-        if (rankName.equalsIgnoreCase("Default") || prefix == null) {
-            member.modifyNickname("[Verified] " + networkPlayer.getName()).queue();
+        if (rankName.equalsIgnoreCase(RobotPlugin.getInstance().getLangMap().get("settings|default")) || prefix == null) {
+            member.modifyNickname(RobotPlugin.getInstance().getLangMap().get("syncing|format").replace("<playerName>", networkPlayer.getName())).queue();
         } else {
             member.modifyNickname(prefix + networkPlayer.getName()).queue();
         }
 
         try {
             event.getGuild().addRoleToMember(member, role).queue();
-        } catch (HierarchyException exception) {
-            System.out.println("[Discord] Couldn't add the role to " + member.getAsMention() + " because of " + exception.getMessage() + "!");
+        } catch (Throwable throwable) {
+            System.out.println("[Discord] Couldn't add the role to " + member.getAsMention() + " because of " + throwable.getMessage() + "!");
         }
     }
 }

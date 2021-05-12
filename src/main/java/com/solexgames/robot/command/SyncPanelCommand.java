@@ -11,7 +11,7 @@ import java.awt.*;
 @CommandController
 public class SyncPanelCommand {
 
-    @Command(value = {"syncpanel"}, name = "Sync panel generator", usage = "{prefix}syncpanel", category = "Staff")
+    @Command(value = {"syncpanel"}, name = "Sync panel generator.", usage = "{prefix}syncpanel", category = "Administration")
     public void onSync(CommandEvent event) {
         if (event.getMember() != null && event.getMember().getId().equals(RobotPlugin.getInstance().getConfig().getString("settings.owner-id"))) {
             event.getMessage().delete().queue();
