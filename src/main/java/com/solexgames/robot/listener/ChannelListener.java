@@ -1,9 +1,9 @@
 package com.solexgames.robot.listener;
 
 import com.solexgames.robot.RobotPlugin;
+import com.solexgames.robot.task.MessageDeleteTask;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
 
 @SuppressWarnings("all")
@@ -15,12 +15,8 @@ public class ChannelListener extends ListenerAdapter {
         final String rawMessage = event.getMessage().getContentRaw();
         final String syncLabel = RobotPlugin.getInstance().getLangMap().get("settings|prefix") + "sync";
 
-        if (channelName.equals(RobotPlugin.getInstance().getLangMap().get("syncing|channel")) && !rawMessage.equals(syncLabel)) {
-            Bukkit.getScheduler().runTaskLater(RobotPlugin.getInstance(), () -> {
-                if (event.getMessage() != null) {
-                    event.getMessage().delete().queue();
-                }
-            }, 40L);
+        if (channelName.equals(RobotPlugin.getInstance().getLangMap().get("syncing|channel")) && !rawMessage.equals(syncLabel) && !event.getMember().getUser().isBot()) {
+            new MessageDeleteTask(event.getMessage(), 40L);
         }
     }
 }

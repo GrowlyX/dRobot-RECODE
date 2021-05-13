@@ -9,6 +9,7 @@ import com.solexgames.core.player.ranks.Rank;
 import com.solexgames.core.util.Color;
 import com.solexgames.core.util.RedisUtil;
 import com.solexgames.robot.RobotPlugin;
+import com.solexgames.robot.task.MessageDeleteTask;
 import com.solexgames.robot.util.EmbedUtil;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
@@ -31,22 +32,14 @@ public class SyncCommand {
 
         if (networkPlayer == null) {
             event.reply(EmbedUtil.getEmbed(member.getUser(), RobotPlugin.getInstance().getLangMap().get("invalid-code|title"), RobotPlugin.getInstance().getLangMap().get("invalid-code|description"), java.awt.Color.RED),
-                    message -> Bukkit.getScheduler().runTaskLater(RobotPlugin.getInstance(), () -> {
-                        if (message != null) {
-                            message.delete().queue();
-                        }
-                    }, 100L)
+                    message -> new MessageDeleteTask(event.getMessage(), 100L)
             );
             return;
         }
 
         if (networkPlayer.isSynced()) {
             event.reply(EmbedUtil.getEmbed(member.getUser(), RobotPlugin.getInstance().getLangMap().get("already-synced|title"), RobotPlugin.getInstance().getLangMap().get("already-synced|description"), java.awt.Color.RED),
-                    message -> Bukkit.getScheduler().runTaskLater(RobotPlugin.getInstance(), () -> {
-                        if (message != null) {
-                            message.delete().queue();
-                        }
-                    }, 100L)
+                    message -> new MessageDeleteTask(event.getMessage(), 100L)
             );
             return;
         }
@@ -61,11 +54,7 @@ public class SyncCommand {
 
         event.getMessage().delete().queue();
         event.reply(EmbedUtil.getEmbed(member.getUser(), RobotPlugin.getInstance().getLangMap().get("successful-sync|title"), RobotPlugin.getInstance().getLangMap().get("successful-sync|title").replace("<playerName>", networkPlayer.getName()), java.awt.Color.GREEN),
-                message -> Bukkit.getScheduler().runTaskLater(RobotPlugin.getInstance(), () -> {
-                    if (message != null) {
-                        message.delete().queue();
-                    }
-                }, 100L)
+                message -> new MessageDeleteTask(event.getMessage(), 100L)
         );
 
         RedisUtil.publishAsync(RedisUtil.syncDiscord(member.getUser().getAsTag(), networkPlayer.getName()));

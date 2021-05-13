@@ -14,13 +14,10 @@ public class SyncPanelCommand {
     @Command(value = {"syncpanel"}, name = "Sync panel generator.", usage = "{prefix}syncpanel", category = "Administration")
     public void onSync(CommandEvent event) {
         if (event.getMember() != null && event.getMember().getId().equals(RobotPlugin.getInstance().getConfig().getString("settings.owner-id"))) {
-            event.getMessage().delete().queue();
             event.reply(new EmbedBuilder()
-                    .setTitle("**Account Syncing**")
-                    .setDescription(
-                            "Use `/sync` in-game to receive your account syncing code and use `-sync` in this channel to sync your discord account!"
-                    )
-                    .setImage(RobotPlugin.getInstance().getConfig().getString("settings.sync-panel-bg"))
+                    .setTitle(RobotPlugin.getInstance().getLangMap().get("panel|title"))
+                    .setDescription(RobotPlugin.getInstance().getLangMap().get("panel|description"))
+                    .setImage(RobotPlugin.getInstance().getLangMap().get("panel|image-url"))
                     .setColor(Color.ORANGE)
             );
         }
