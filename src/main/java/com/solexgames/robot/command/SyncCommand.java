@@ -13,13 +13,12 @@ import com.solexgames.robot.task.MessageDeleteTask;
 import com.solexgames.robot.util.EmbedUtil;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 
 @CommandController
 public class SyncCommand {
 
-    @Command(value = {"sync"}, name = "Sync Command", usage = "{prefix}sync", desc = "Sync your discord to your in-game account!", category = "Syncing")
+    @Command(value = {"sync", "link"}, name = "Sync Command", usage = "{prefix}sync", desc = "Sync your discord to your in-game account!", category = "Syncing")
     public void onSync(CommandEvent event, String player) {
         final Member member = event.getMember();
 
