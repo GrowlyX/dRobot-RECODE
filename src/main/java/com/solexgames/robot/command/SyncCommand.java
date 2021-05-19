@@ -31,14 +31,14 @@ public class SyncCommand {
 
         if (networkPlayer == null) {
             event.reply(EmbedUtil.getEmbed(member.getUser(), RobotPlugin.getInstance().getLangMap().get("invalid-code|title"), RobotPlugin.getInstance().getLangMap().get("invalid-code|description"), java.awt.Color.RED),
-                    message -> new MessageDeleteTask(event.getMessage(), 100L)
+                    message -> new MessageDeleteTask(message, 100L)
             );
             return;
         }
 
         if (networkPlayer.isSynced()) {
             event.reply(EmbedUtil.getEmbed(member.getUser(), RobotPlugin.getInstance().getLangMap().get("already-synced|title"), RobotPlugin.getInstance().getLangMap().get("already-synced|description"), java.awt.Color.RED),
-                    message -> new MessageDeleteTask(event.getMessage(), 100L)
+                    message -> new MessageDeleteTask(message, 100L)
             );
             return;
         }
@@ -52,8 +52,8 @@ public class SyncCommand {
         }
 
         event.getMessage().delete().queue();
-        event.reply(EmbedUtil.getEmbed(member.getUser(), RobotPlugin.getInstance().getLangMap().get("successful-sync|title"), RobotPlugin.getInstance().getLangMap().get("successful-sync|title").replace("<playerName>", networkPlayer.getName()), java.awt.Color.GREEN),
-                message -> new MessageDeleteTask(event.getMessage(), 100L)
+        event.reply(EmbedUtil.getEmbed(member.getUser(), RobotPlugin.getInstance().getLangMap().get("successful-sync|title"), RobotPlugin.getInstance().getLangMap().get("successful-sync|description").replace("<playerName>", networkPlayer.getName()), java.awt.Color.GREEN),
+                message -> new MessageDeleteTask(message, 100L)
         );
 
         RedisUtil.publishAsync(RedisUtil.syncDiscord(member.getUser().getAsTag(), networkPlayer.getName()));

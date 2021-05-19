@@ -30,6 +30,7 @@ public class AnnounceCommand {
 
         if (!member.getRoles().contains(commandEvent.getGuild().getRolesByName("Owner", true).get(0))) {
             commandEvent.reply("I'm sorry, but you do not have permission to perform this command.", message -> new MessageDeleteTask(message, 40L));
+            return;
         }
 
         final String msg = String.join(" ", args);
@@ -40,7 +41,7 @@ public class AnnounceCommand {
         embed.setTimestamp(Instant.now());
         embed.setFooter(member.getEffectiveName(), member.getUser().getAvatarUrl());
 
-        embed.setDescription(commandEvent.getChannel().getGuild().getPublicRole().getAsMention() + " " + msg);
+        embed.setDescription(commandEvent.getChannel().getGuild().getPublicRole().getAsMention() + " " + msg.replace(" -s", ""));
 
         commandEvent.getChannel().sendMessage(embed.build()).queue();
 
