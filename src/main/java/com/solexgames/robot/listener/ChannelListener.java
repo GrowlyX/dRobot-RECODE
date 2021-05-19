@@ -13,10 +13,8 @@ public class ChannelListener extends ListenerAdapter {
     public void onMessageReceived(@NotNull MessageReceivedEvent event) {
         final String channelName = event.getChannel().getName();
         final String rawMessage = event.getMessage().getContentRaw();
-        final String syncLabel = RobotPlugin.getInstance().getLangMap().get("settings|prefix") + "sync";
-        final String syncLabel2 = RobotPlugin.getInstance().getLangMap().get("settings|prefix") + "link";
 
-        if (channelName.equals(RobotPlugin.getInstance().getLangMap().get("syncing|channel")) && !rawMessage.equals(syncLabel) && !rawMessage.equals(syncLabel2) && !event.getMember().getUser().isBot()) {
+        if (channelName.equals(RobotPlugin.getInstance().getLangMap().get("syncing|channel")) && !event.getMember().getUser().isBot()) {
             new MessageDeleteTask(event.getMessage(), 40L);
         }
     }

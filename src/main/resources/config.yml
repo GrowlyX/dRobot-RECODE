@@ -32,3 +32,4 @@ language:
     title: "**Account Syncing**"
     description: "Use `/sync` in-game to receive your account syncing code and use `-sync` in this channel to sync your discord account!"
     image-url: "https://cdn.discordapp.com/attachments/839431125196996618/841697784691687424/pvpbar-header.png"
+    color: "orange"
