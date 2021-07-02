@@ -50,7 +50,5 @@ public class ClearCommand {
 
             commandEvent.reply(builder);
         }
-
-        commandEvent.getMessage().delete().queue();
     }
 }
