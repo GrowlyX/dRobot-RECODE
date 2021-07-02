@@ -7,6 +7,7 @@ import com.github.kaktushose.jda.commands.entities.CommandEvent;
 import com.solexgames.robot.task.MessageDeleteTask;
 import com.solexgames.robot.util.RoleUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 
 import java.awt.*;
@@ -18,10 +19,10 @@ import java.time.Instant;
  */
 
 @CommandController
-public class BanCommand {
+public class UnmuteCommand {
 
-    @Command(value = "ban", name = "Ban command", desc = "Ban a player!", usage = "{prefix}ban <player> <days> [optional: <reason>] [-s]", category = "Moderation")
-    public void onCommand(CommandEvent commandEvent, String id, int days, @Optional String reason) {
+    @Command(value = "unmute", name = "Unmute command", desc = "unmute a player!", usage = "{prefix}mute <player> [-s]", category = "Moderation")
+    public void onCommand(CommandEvent commandEvent, String id, @Optional String silent) {
         final Member member = commandEvent.getMember();
 
         if (member == null) {
@@ -41,19 +42,22 @@ public class BanCommand {
             return;
         }
 
-        if (reason != null && reason.endsWith("-s")) {
+        commandEvent.getGuild().getChannels().forEach(guildChannel -> {
+            guildChannel.createPermissionOverride(target)
+                    .grant(Permission.MESSAGE_WRITE).queue();
+        });
+
+        if (silent == null) {
             final EmbedBuilder builder = new EmbedBuilder();
 
-            builder.setTitle("**Banned**");
+            builder.setTitle("**Unmuted**");
             builder.setTimestamp(Instant.now());
             builder.setFooter(member.getEffectiveName(), member.getUser().getAvatarUrl());
-            builder.setDescription(target.getAsMention() + " has been banned by " + member.getAsMention());
+            builder.setDescription(target.getAsMention() + " has been unmuted by " + member.getAsMention());
             builder.setColor(Color.GREEN);
 
             commandEvent.reply(builder);
         }
-
-        target.ban(days, reason == null ? "Breaking the Rules" : reason.replace(" -s" , "")).queue();
 
         commandEvent.getMessage().delete().queue();
     }

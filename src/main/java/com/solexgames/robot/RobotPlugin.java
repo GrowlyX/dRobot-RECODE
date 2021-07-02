@@ -8,6 +8,7 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.requests.GatewayIntent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import javax.security.auth.login.LoginException;
@@ -46,7 +47,7 @@ public final class RobotPlugin extends JavaPlugin {
         this.supportRole = this.getConfig().getString("settings.support-role-name");
 
         try {
-            this.discord = JDABuilder.createDefault(this.getConfig().getString("settings.token"))
+            this.discord = JDABuilder.createLight(this.getConfig().getString("settings.token"), GatewayIntent.GUILD_MEMBERS)
                     .setStatus(OnlineStatus.valueOf(this.getConfig().getString("settings.status").toUpperCase().replace(" ", "_")))
                     .setActivity(Activity.playing(this.getConfig().getString("settings.activity")))
                     .addEventListeners(new ChannelListener()).build();

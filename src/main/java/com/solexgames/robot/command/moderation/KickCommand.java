@@ -21,7 +21,7 @@ import java.time.Instant;
 public class KickCommand {
 
     @Command(value = "kick", name = "Kick command", desc = "Kick a player!", usage = "{prefix}kick <player> [-s]", category = "Moderation")
-    public void onCommand(CommandEvent commandEvent, Member target, @Optional String silent) {
+    public void onCommand(CommandEvent commandEvent, String id, @Optional String silent) {
         final Member member = commandEvent.getMember();
 
         if (member == null) {
@@ -31,6 +31,13 @@ public class KickCommand {
 
         if (!RoleUtil.isModerator(member)) {
             commandEvent.reply("I'm sorry, but you do not have permission to perform this command.", message -> new MessageDeleteTask(message, 40L));
+            return;
+        }
+
+        final Member target = commandEvent.getGuild().getMemberByTag(id);
+
+        if (target == null) {
+            commandEvent.reply("No player matching " + id + " is online this server.", message -> new MessageDeleteTask(message, 40L));
             return;
         }
 

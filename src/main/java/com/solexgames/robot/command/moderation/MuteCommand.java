@@ -7,6 +7,7 @@ import com.github.kaktushose.jda.commands.entities.CommandEvent;
 import com.solexgames.robot.task.MessageDeleteTask;
 import com.solexgames.robot.util.RoleUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 
@@ -22,7 +23,7 @@ import java.time.Instant;
 public class MuteCommand {
 
     @Command(value = "mute", name = "Mute command", desc = "Mute a player!", usage = "{prefix}mute <player> [-s]", category = "Moderation")
-    public void onCommand(CommandEvent commandEvent, Member target, @Optional String silent) {
+    public void onCommand(CommandEvent commandEvent, String id, @Optional String silent) {
         final Member member = commandEvent.getMember();
 
         if (member == null) {
@@ -35,7 +36,17 @@ public class MuteCommand {
             return;
         }
 
-        target.mute(true).queue();
+        final Member target = commandEvent.getGuild().getMemberByTag(id);
+
+        if (target == null) {
+            commandEvent.reply("No player matching " + id + " is online this server.", message -> new MessageDeleteTask(message, 40L));
+            return;
+        }
+
+        commandEvent.getGuild().getChannels().forEach(guildChannel -> {
+            guildChannel.createPermissionOverride(target)
+                    .deny(Permission.MESSAGE_WRITE).queue();
+        });
 
         if (silent == null) {
             final EmbedBuilder builder = new EmbedBuilder();

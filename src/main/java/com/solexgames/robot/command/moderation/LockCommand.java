@@ -22,7 +22,7 @@ import java.time.Instant;
 public class LockCommand {
 
     @Command(value = "lock", name = "Lock command", desc = "Lock the current channel.", usage = "{prefix}lock [-s]", category = "Management")
-    public void onCommand(CommandEvent commandEvent, Member target, @Optional String silent) {
+    public void onCommand(CommandEvent commandEvent, @Optional String silent) {
         final Member member = commandEvent.getMember();
 
         if (member == null) {
