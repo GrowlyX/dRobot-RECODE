@@ -47,7 +47,8 @@ public final class RobotPlugin extends JavaPlugin {
         this.supportRole = this.getConfig().getString("settings.support-role-name");
 
         try {
-            this.discord = JDABuilder.createLight(this.getConfig().getString("settings.token"), GatewayIntent.GUILD_MEMBERS)
+            this.discord = JDABuilder.createLight(this.getConfig().getString("settings.token"))
+                    .enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_MESSAGES)
                     .setStatus(OnlineStatus.valueOf(this.getConfig().getString("settings.status").toUpperCase().replace(" ", "_")))
                     .setActivity(Activity.playing(this.getConfig().getString("settings.activity")))
                     .addEventListeners(new ChannelListener()).build();

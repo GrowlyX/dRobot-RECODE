@@ -24,12 +24,34 @@ public class RoleUtil {
     );
 
     public static final List<String> MODERATION_ROLES = Arrays.asList(
+            "Admin",
             "Senior Mod",
             "Mod+",
             "Mod",
             "Trainee",
             "Chat Mod"
     );
+
+    public static final List<String> DEVELOPER_ROLES = Arrays.asList(
+            "Developer",
+            "Owner"
+    );
+
+    public static boolean isDeveloper(Member member) {
+        final List<Role> roles = member.getRoles();
+
+        final List<Role> developerRoles = RoleUtil.DEVELOPER_ROLES.stream()
+                .map(name -> member.getGuild().getRolesByName(name, true).get(0))
+                .filter(Objects::nonNull).collect(Collectors.toList());
+
+        for (Role role : developerRoles) {
+            if (roles.contains(role)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     public static boolean isManager(Member member) {
         final List<Role> roles = member.getRoles();

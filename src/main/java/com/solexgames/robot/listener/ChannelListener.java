@@ -35,20 +35,18 @@ public class ChannelListener extends ListenerAdapter {
     @Override
     public void onGuildMemberJoin(GuildMemberJoinEvent event) {
         final MessageChannel channel = event.getGuild().getTextChannelsByName("arrivals", true).get(0);
-        final Emote emote = event.getGuild().getEmoteById("849719227249065984");
 
         if (channel != null) {
-            channel.sendMessage("Welcome to the PvPBar Discord Server, " + event.getMember().getAsMention() + "! " + emote.getAsMention());
+            channel.sendMessage("Welcome to the PvPBar Discord Server, " + event.getMember().getAsMention() + "! <:pvpbar:849719227249065984>").queue();
         }
     }
 
     @Override
     public void onGuildMemberUpdateBoostTime(GuildMemberUpdateBoostTimeEvent event) {
         final MessageChannel channel = event.getGuild().getTextChannelsByName("boosts", true).get(0);
-        final Emote emote = event.getGuild().getEmoteById("839714027423793182");
 
         if (channel != null) {
-            channel.sendMessage("Thanks for boosting our discord server, " + event.getMember().getAsMention() + "! " + emote.getAsMention());
+            channel.sendMessage("Thanks for boosting our discord server, " + event.getMember().getAsMention() + "! <:nitro:839714027423793182>").queue();
         }
     }
 }
