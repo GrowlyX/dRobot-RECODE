@@ -2,18 +2,20 @@ package com.solexgames.robot.listener;
 
 import com.solexgames.core.CorePlugin;
 import com.solexgames.robot.RobotPlugin;
-import com.solexgames.robot.task.MessageDeleteTask;
-import net.dv8tion.jda.api.entities.Emote;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.events.guild.member.update.GuildMemberUpdateBoostTimeEvent;
-import net.dv8tion.jda.api.events.guild.update.GuildUpdateBoostTierEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
+
 @SuppressWarnings("all")
 public class ChannelListener extends ListenerAdapter {
+
+    private static final Pattern URL_PATTERN = Pattern.compile("^(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]");
 
     @Override
     public void onMessageReceived(@NotNull MessageReceivedEvent event) {
@@ -21,7 +23,7 @@ public class ChannelListener extends ListenerAdapter {
         final String rawMessage = event.getMessage().getContentRaw();
 
         if (channelName.equals(RobotPlugin.getInstance().getLangMap().get("syncing|channel")) && !event.getMember().getUser().isBot()) {
-            new MessageDeleteTask(event.getMessage(), 40L);
+            event.getMessage().delete().queueAfter(2L, TimeUnit.SECONDS);
             return;
         }
 
