@@ -1,7 +1,10 @@
 package com.solexgames.robot;
 
 import com.github.kaktushose.jda.commands.entities.JDACommandsBuilder;
+import com.solexgames.core.CorePlugin;
+import com.solexgames.lib.commons.redis.JedisBuilder;
 import com.solexgames.robot.listener.ChannelListener;
+import com.solexgames.robot.redis.RedisListener;
 import lombok.Getter;
 import lombok.Setter;
 import net.dv8tion.jda.api.JDA;
@@ -57,6 +60,10 @@ public final class RobotPlugin extends JavaPlugin {
             this.getLogger().info("Maybe double check your token?");
             this.getServer().shutdown();
         }
+
+        new JedisBuilder().withChannel("robot")
+                .withSettings(CorePlugin.getInstance().getDefaultJedisSettings())
+                .withHandler(new RedisListener()).build();
 
         JDACommandsBuilder.start(this.discord, this.langMap.get("settings|prefix"), true, false, false);
     }

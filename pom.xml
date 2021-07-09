@@ -80,6 +80,14 @@
             <systemPath>${basedir}/lib/Scandium.jar</systemPath>
         </dependency>
         <dependency>
+            <groupId>com.solexgames.lib</groupId>
+            <artifactId>commonlibs-bukkit</artifactId>
+            <version>LATEST</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/lib/commonslibs-bukkit.jar</systemPath>
+        </dependency>
+
+        <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <version>LATEST</version>
