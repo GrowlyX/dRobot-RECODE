@@ -9,11 +9,12 @@ import com.solexgames.core.player.ranks.Rank;
 import com.solexgames.core.util.Color;
 import com.solexgames.core.util.RedisUtil;
 import com.solexgames.robot.RobotPlugin;
-import com.solexgames.robot.task.MessageDeleteTask;
 import com.solexgames.robot.util.EmbedUtil;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 import org.bukkit.ChatColor;
+
+import java.util.concurrent.TimeUnit;
 
 @CommandController
 public class SyncCommand {
@@ -31,14 +32,14 @@ public class SyncCommand {
 
         if (networkPlayer == null) {
             event.reply(EmbedUtil.getEmbed(member.getUser(), RobotPlugin.getInstance().getLangMap().get("invalid-code|title"), RobotPlugin.getInstance().getLangMap().get("invalid-code|description"), java.awt.Color.RED),
-                    message -> new MessageDeleteTask(message, 100L)
+                    message -> message.delete().queueAfter(5L, TimeUnit.SECONDS)
             );
             return;
         }
 
         if (networkPlayer.isSynced()) {
             event.reply(EmbedUtil.getEmbed(member.getUser(), RobotPlugin.getInstance().getLangMap().get("already-synced|title"), RobotPlugin.getInstance().getLangMap().get("already-synced|description"), java.awt.Color.RED),
-                    message -> new MessageDeleteTask(message, 100L)
+                    message -> message.delete().queueAfter(5L, TimeUnit.SECONDS)
             );
             return;
         }
@@ -53,7 +54,7 @@ public class SyncCommand {
 
         event.getMessage().delete().queue();
         event.reply(EmbedUtil.getEmbed(member.getUser(), RobotPlugin.getInstance().getLangMap().get("successful-sync|title"), RobotPlugin.getInstance().getLangMap().get("successful-sync|description").replace("<playerName>", networkPlayer.getName()), java.awt.Color.GREEN),
-                message -> new MessageDeleteTask(message, 100L)
+                message -> message.delete().queueAfter(5L, TimeUnit.SECONDS)
         );
 
         RedisUtil.publishAsync(RedisUtil.syncDiscord(member.getUser().getAsTag(), networkPlayer.getName()));
