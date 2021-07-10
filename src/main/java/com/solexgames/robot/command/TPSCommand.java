@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 @CommandController
 public class TPSCommand {
 
-    @Command(value = "clear", name = "Clear command", desc = "Clear a channel!", usage = "{prefix}clear <amount> [-s]", category = "Moderation")
+    @Command(value = "tps", name = "TPS command", desc = "View tps of an online server!", usage = "{prefix}tps <server>", category = "General")
     public void onCommand(CommandEvent commandEvent, String server) {
         final Member member = commandEvent.getMember();
 
