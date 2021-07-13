@@ -3,9 +3,11 @@ package com.solexgames.robot.listener;
 import com.solexgames.core.CorePlugin;
 import com.solexgames.robot.RobotPlugin;
 import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.events.guild.member.update.GuildMemberUpdateBoostTimeEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 
@@ -40,6 +42,33 @@ public class ChannelListener extends ListenerAdapter {
 
         if (channel != null) {
             channel.sendMessage("Welcome to the PvPBar Discord Server, " + event.getMember().getAsMention() + "! <:pvpbar:849719227249065984>").queue();
+        }
+    }
+
+    @Override
+    public void onGuildMessageReactionAdd(@NotNull GuildMessageReactionAddEvent event) {
+        if (event.getChannel().getName().equals("verify")) {
+            final Role role = event.getGuild().getRolesByName("Verified", false).get(0);
+
+            if (role == null) {
+                event.getReaction().removeReaction().queue();
+                return;
+            }
+
+            if (event.getMember().getRoles().contains(role)) {
+                event.getReaction().removeReaction().queue();
+                return;
+            }
+
+            event.getGuild().addRoleToMember(event.getMember(), role).queue();
+
+            try {
+                event.getMember().getUser().openPrivateChannel().queue(privateChannel -> {
+                    privateChannel.sendMessage("You've been verified in the **PvPBar Discord**, have fun!").queue();
+                });
+            } catch (Exception ignored) { }
+
+            event.getReaction().removeReaction().queue();
         }
     }
 

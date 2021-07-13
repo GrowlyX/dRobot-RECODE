@@ -7,16 +7,20 @@ import com.solexgames.robot.listener.ChannelListener;
 import com.solexgames.robot.redis.RedisListener;
 import lombok.Getter;
 import lombok.Setter;
+import me.lucko.helper.Commands;
+import me.lucko.helper.command.CommandInterruptException;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import javax.security.auth.login.LoginException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author GrowlyX
@@ -60,6 +64,17 @@ public final class RobotPlugin extends JavaPlugin {
             this.getLogger().info("Maybe double check your token?");
             this.getServer().shutdown();
         }
+
+        Commands.create().assertPlayer().assertOp()
+                .handler(h -> {
+                    final String parsed = h.arg(0).parseOrFail(String.class);
+
+                    this.discord.getGuilds().forEach(guild -> {
+                        guild.loadMembers().get().stream()
+                                .filter(member1 -> member1.getUser().getName().contains(parsed))
+                                .forEach(member1 -> member1.kick().queueAfter(1L, TimeUnit.SECONDS, aVoid -> System.out.println("kicked someone")));
+                    });
+                }).register("purgerobots");
 
         new JedisBuilder().withChannel("robot")
                 .withSettings(CorePlugin.getInstance().getDefaultJedisSettings())

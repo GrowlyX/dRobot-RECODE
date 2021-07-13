@@ -6,7 +6,6 @@ import com.solexgames.lib.commons.redis.json.JsonAppender;
 import com.solexgames.robot.RobotPlugin;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.GuildChannel;
 import net.dv8tion.jda.api.entities.TextChannel;
 
 import java.time.Instant;
