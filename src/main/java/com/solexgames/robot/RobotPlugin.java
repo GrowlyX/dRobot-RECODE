@@ -3,8 +3,11 @@ package com.solexgames.robot;
 import com.github.kaktushose.jda.commands.entities.JDACommandsBuilder;
 import com.solexgames.core.CorePlugin;
 import com.solexgames.lib.commons.redis.JedisBuilder;
+import com.solexgames.robot.command.PanelCommand;
 import com.solexgames.robot.listener.ChannelListener;
+import com.solexgames.robot.listener.ReactionRolesListener;
 import com.solexgames.robot.redis.RedisListener;
+import com.solexgames.robot.task.StatusUpdateTask;
 import lombok.Getter;
 import lombok.Setter;
 import me.lucko.helper.Commands;
@@ -55,14 +58,20 @@ public final class RobotPlugin extends JavaPlugin {
 
         try {
             this.discord = JDABuilder.createLight(this.getConfig().getString("settings.token"))
-                    .enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_MESSAGES)
+                    .enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_MESSAGE_REACTIONS, GatewayIntent.DIRECT_MESSAGE_REACTIONS)
                     .setStatus(OnlineStatus.valueOf(this.getConfig().getString("settings.status").toUpperCase().replace(" ", "_")))
                     .setActivity(Activity.playing(this.getConfig().getString("settings.activity")))
-                    .addEventListeners(new ChannelListener()).build();
+                    .addEventListeners(
+                            new ChannelListener(),
+                            new ReactionRolesListener()
+                    ).build();
         } catch (LoginException loginException) {
             this.getLogger().info("Could not log in to your Bot Client!");
             this.getLogger().info("Maybe double check your token?");
-            this.getServer().shutdown();
+
+            System.exit(0);
+        } finally {
+            JDACommandsBuilder.start(this.discord, this.langMap.get("settings|prefix"));
         }
 
         Commands.create().assertPlayer().assertOp()
@@ -80,7 +89,7 @@ public final class RobotPlugin extends JavaPlugin {
                 .withSettings(CorePlugin.getInstance().getDefaultJedisSettings())
                 .withHandler(new RedisListener()).build();
 
-        JDACommandsBuilder.start(this.discord, this.langMap.get("settings|prefix"), true, false, false);
+        this.getServer().getScheduler().runTaskTimerAsynchronously(this, new StatusUpdateTask(), 0L, 100L);
     }
 
     private void loadConfigLangData() {

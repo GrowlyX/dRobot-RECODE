@@ -86,6 +86,13 @@
             <scope>system</scope>
             <systemPath>${basedir}/lib/commonslibs-bukkit.jar</systemPath>
         </dependency>
+        <dependency>
+            <groupId>com.solexgames.hub</groupId>
+            <artifactId>Neon</artifactId>
+            <version>LATEST</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/lib/Neon.jar</systemPath>
+        </dependency>
 
         <dependency>
             <groupId>org.projectlombok</groupId>

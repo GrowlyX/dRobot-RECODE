@@ -1,4 +1,4 @@
-package com.solexgames.robot.command.moderation;
+package com.solexgames.robot.command;
 
 import com.github.kaktushose.jda.commands.annotations.Command;
 import com.github.kaktushose.jda.commands.annotations.CommandController;
@@ -6,7 +6,6 @@ import com.github.kaktushose.jda.commands.annotations.Optional;
 import com.github.kaktushose.jda.commands.entities.CommandEvent;
 import com.solexgames.robot.util.RoleUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 
 import java.awt.*;
@@ -19,9 +18,9 @@ import java.util.concurrent.TimeUnit;
  */
 
 @CommandController
-public class UnmuteCommand {
+public class KickCommand {
 
-    @Command(value = "unmute", name = "Unmute command", desc = "unmute a player!", usage = "{prefix}mute <player> [-s]", category = "Moderation")
+    @Command(value = "kick", name = "Kick command", desc = "Kick a player!", usage = "{prefix}kick <player> [-s]", category = "Moderation")
     public void onCommand(CommandEvent commandEvent, String id, @Optional String silent) {
         final Member member = commandEvent.getMember();
 
@@ -42,18 +41,15 @@ public class UnmuteCommand {
             return;
         }
 
-        commandEvent.getGuild().getChannels().forEach(guildChannel -> {
-            guildChannel.createPermissionOverride(target)
-                    .grant(Permission.MESSAGE_WRITE).queue();
-        });
+        target.kick().queue();
 
         if (silent == null) {
             final EmbedBuilder builder = new EmbedBuilder();
 
-            builder.setTitle("**Unmuted**");
+            builder.setTitle("**Kicked**");
             builder.setTimestamp(Instant.now());
             builder.setFooter(member.getEffectiveName(), member.getUser().getAvatarUrl());
-            builder.setDescription(target.getAsMention() + " has been unmuted by " + member.getAsMention());
+            builder.setDescription(target.getAsMention() + " has been kicked by " + member.getAsMention());
             builder.setColor(Color.GREEN);
 
             commandEvent.reply(builder);

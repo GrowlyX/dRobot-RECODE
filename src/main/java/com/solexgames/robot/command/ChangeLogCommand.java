@@ -1,4 +1,4 @@
-package com.solexgames.robot.command.moderation;
+package com.solexgames.robot.command;
 
 import com.github.kaktushose.jda.commands.annotations.Command;
 import com.github.kaktushose.jda.commands.annotations.CommandController;
@@ -18,10 +18,10 @@ import java.util.concurrent.TimeUnit;
  */
 
 @CommandController
-public class SneakPeakCommand {
+public class ChangeLogCommand {
 
-    @Command(value = "sneakpeak", name = "Sneak peak command", desc = "Release a sneak peak!", usage = "{prefix}sneakpeak <url>", category = "Developers")
-    public void onCommand(CommandEvent commandEvent, String url, @Concat String description) {
+    @Command(value = "changelog", name = "Change log command", desc = "Release a change log!", usage = "{prefix}changelog <message...>", category = "Developers")
+    public void onCommand(CommandEvent commandEvent, @Concat String description) {
         final Member member = commandEvent.getMember();
 
         if (member == null) {
@@ -36,11 +36,10 @@ public class SneakPeakCommand {
 
         final EmbedBuilder builder = new EmbedBuilder();
 
-        builder.setTitle("**Sneak Peak**");
+        builder.setTitle("**Changelog**");
         builder.setTimestamp(Instant.now());
         builder.setFooter(member.getEffectiveName(), member.getUser().getAvatarUrl());
         builder.setDescription(description);
-        builder.setImage(url);
         builder.setColor(Color.ORANGE);
 
         commandEvent.reply(builder);

@@ -1,4 +1,4 @@
-package com.solexgames.robot.command.moderation;
+package com.solexgames.robot.command;
 
 import com.github.kaktushose.jda.commands.annotations.Command;
 import com.github.kaktushose.jda.commands.annotations.CommandController;
@@ -6,12 +6,11 @@ import com.github.kaktushose.jda.commands.annotations.Optional;
 import com.github.kaktushose.jda.commands.entities.CommandEvent;
 import com.solexgames.robot.util.RoleUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Message;
 
 import java.awt.*;
 import java.time.Instant;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -20,10 +19,10 @@ import java.util.concurrent.TimeUnit;
  */
 
 @CommandController
-public class ClearCommand {
+public class MuteCommand {
 
-    @Command(value = "clear", name = "Clear command", desc = "Clear a channel!", usage = "{prefix}clear <amount> [-s]", category = "Moderation")
-    public void onCommand(CommandEvent commandEvent, int amount, @Optional String silent) {
+    @Command(value = "mute", name = "Mute command", desc = "Mute a player!", usage = "{prefix}mute <player> [-s]", category = "Moderation")
+    public void onCommand(CommandEvent commandEvent, String id, @Optional String silent) {
         final Member member = commandEvent.getMember();
 
         if (member == null) {
@@ -36,19 +35,30 @@ public class ClearCommand {
             return;
         }
 
-        final List<Message> messages = commandEvent.getChannel().getHistory().retrievePast(amount).complete();
-        commandEvent.getChannel().deleteMessages(messages).queue();
+        final Member target = commandEvent.getGuild().getMemberByTag(id);
+
+        if (target == null) {
+            commandEvent.reply("No player matching " + id + " is online this server.", message -> message.delete().queueAfter(2L, TimeUnit.SECONDS));
+            return;
+        }
+
+        commandEvent.getGuild().getChannels().forEach(guildChannel -> {
+            guildChannel.createPermissionOverride(target)
+                    .deny(Permission.MESSAGE_WRITE).queue();
+        });
 
         if (silent == null) {
             final EmbedBuilder builder = new EmbedBuilder();
 
-            builder.setTitle("**Cleared**");
+            builder.setTitle("**Muted**");
             builder.setTimestamp(Instant.now());
             builder.setFooter(member.getEffectiveName(), member.getUser().getAvatarUrl());
-            builder.setDescription("This channel's been cleared by a moderator.");
+            builder.setDescription(target.getAsMention() + " has been permanently muted by " + member.getAsMention());
             builder.setColor(Color.GREEN);
 
             commandEvent.reply(builder);
         }
+
+        commandEvent.getMessage().delete().queue();
     }
 }

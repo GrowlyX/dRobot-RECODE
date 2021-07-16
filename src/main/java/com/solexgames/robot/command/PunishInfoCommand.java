@@ -1,4 +1,4 @@
-package com.solexgames.robot.command.moderation;
+package com.solexgames.robot.command;
 
 import com.github.kaktushose.jda.commands.annotations.Command;
 import com.github.kaktushose.jda.commands.annotations.CommandController;

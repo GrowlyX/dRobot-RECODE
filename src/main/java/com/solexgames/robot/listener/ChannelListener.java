@@ -11,6 +11,9 @@ import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEve
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
@@ -18,6 +21,14 @@ import java.util.regex.Pattern;
 public class ChannelListener extends ListenerAdapter {
 
     private static final Pattern URL_PATTERN = Pattern.compile("^(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]");
+
+    private static final List<Integer> MEMBER_BROADCASTS = Arrays.asList(
+            100, 200, 300, 400, 500, 600, 700, 800, 900, 1000,
+            1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900,
+            2000, 2100, 2200, 2300, 2400, 2500, 2600, 2700, 2800,
+            2900, 3000
+    );
+
 
     @Override
     public void onMessageReceived(@NotNull MessageReceivedEvent event) {
@@ -29,7 +40,34 @@ public class ChannelListener extends ListenerAdapter {
             return;
         }
 
-        final boolean isFiltered = CorePlugin.getInstance().getFilterManager().isMessageFiltered(null, event.getMessage().getContentRaw());
+        if (channelName.equals("suggestions")) {
+            event.getMessage().addReaction("✅").queue();
+            event.getMessage().addReaction("\uD83D\uDEAB").queue();
+        }
+
+        if (channelName.equals("counting")) {
+            try {
+                final Integer integer = Integer.parseInt(rawMessage);
+
+                event.getChannel().getHistory().retrievePast(2)
+                        .map(messages -> messages.size() == 0 ? "" : messages.get(1).getContentRaw())
+                        .queue(message -> {
+                            if (message.equals("")) {
+                                return;
+                            }
+
+                            final Integer beforeNumber = Integer.parseInt(message);
+
+                            if (beforeNumber + 1 != integer) {
+                                event.getMessage().delete().queue();
+                            }
+                        });
+            } catch (Exception ignored) {
+                event.getMessage().delete().queue();
+            }
+        }
+
+        final boolean isFiltered = CorePlugin.getInstance().getFilterManager().isMessageFiltered(null, rawMessage);
 
         if (isFiltered) {
             event.getMessage().delete().queue();
@@ -42,13 +80,29 @@ public class ChannelListener extends ListenerAdapter {
 
         if (channel != null) {
             channel.sendMessage("Welcome to the PvPBar Discord Server, " + event.getMember().getAsMention() + "! <:pvpbar:849719227249065984>").queue();
+
+            CompletableFuture.supplyAsync(() -> event.getGuild().loadMembers().get())
+                    .whenCompleteAsync((list, error) -> {
+                        if (error != null) {
+                            error.printStackTrace();
+                            return;
+                        }
+
+                        if (ChannelListener.MEMBER_BROADCASTS.contains(list.size())) {
+                            final MessageChannel memberLogChannel = event.getGuild().getTextChannelsByName("members-reached", true).get(0);
+
+                            if (memberLogChannel != null) {
+                                memberLogChannel.sendMessage("We've reached **" + list.size() + "** Discord Members! Good job!").queue();
+                            }
+                        }
+                    });
         }
     }
 
     @Override
     public void onGuildMessageReactionAdd(@NotNull GuildMessageReactionAddEvent event) {
         if (event.getChannel().getName().equals("verify")) {
-            final Role role = event.getGuild().getRolesByName("Verified", false).get(0);
+            final Role role = event.getGuild().getRolesByName("Player", false).get(0);
 
             if (role == null) {
                 event.getReaction().removeReaction().queue();
@@ -61,12 +115,13 @@ public class ChannelListener extends ListenerAdapter {
             }
 
             event.getGuild().addRoleToMember(event.getMember(), role).queue();
-
-            try {
-                event.getMember().getUser().openPrivateChannel().queue(privateChannel -> {
-                    privateChannel.sendMessage("You've been verified in the **PvPBar Discord**, have fun!").queue();
-                });
-            } catch (Exception ignored) { }
+            event.getMember().getUser().openPrivateChannel().submit()
+                    .thenCompose(channel -> channel.sendMessage("You've been verified in the **PvPBar Discord**, have fun!").submit())
+                    .whenComplete((message, error) -> {
+                        if (error != null) {
+                            message.addReaction("\uD83C\uDF89").queue();
+                        }
+                    });
 
             event.getReaction().removeReaction().queue();
         }

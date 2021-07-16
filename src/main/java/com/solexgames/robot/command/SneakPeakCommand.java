@@ -2,8 +2,9 @@ package com.solexgames.robot.command;
 
 import com.github.kaktushose.jda.commands.annotations.Command;
 import com.github.kaktushose.jda.commands.annotations.CommandController;
+import com.github.kaktushose.jda.commands.annotations.Concat;
 import com.github.kaktushose.jda.commands.entities.CommandEvent;
-import com.solexgames.core.server.NetworkServer;
+import com.solexgames.robot.util.RoleUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 
@@ -13,14 +14,14 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * @author GrowlyX
- * @since 7/9/2021
+ * @since 7/2/2021
  */
 
 @CommandController
-public class TPSCommand {
+public class SneakPeakCommand {
 
-    @Command(value = "tps", name = "TPS command", desc = "View tps of an online server!", usage = "{prefix}tps <server>", category = "General")
-    public void onCommand(CommandEvent commandEvent, String server) {
+    @Command(value = "sneakpeak", name = "Sneak peak command", desc = "Release a sneak peak!", usage = "{prefix}sneakpeak <url>", category = "Management")
+    public void onCommand(CommandEvent commandEvent, String url, @Concat String description) {
         final Member member = commandEvent.getMember();
 
         if (member == null) {
@@ -28,21 +29,21 @@ public class TPSCommand {
             return;
         }
 
-        final NetworkServer networkServer = NetworkServer.getByName(server);
-
-        if (networkServer == null) {
-            commandEvent.reply("That server doesn't exist.", message -> message.delete().queueAfter(2L, TimeUnit.SECONDS));
+        if (!RoleUtil.isDeveloper(member)) {
+            commandEvent.reply("I'm sorry, but you do not have permission to perform this command.", message -> message.delete().queueAfter(2L, TimeUnit.SECONDS));
             return;
         }
 
         final EmbedBuilder builder = new EmbedBuilder();
 
-        builder.setTitle("**TPS**");
+        builder.setTitle("**Sneak Peak**");
         builder.setTimestamp(Instant.now());
         builder.setFooter(member.getEffectiveName(), member.getUser().getAvatarUrl());
-        builder.setDescription("The tps of " + server + " is currently at " + "**" + networkServer.getTicksPerSecondSimplified() + "**.");
+        builder.setDescription(description);
+        builder.setImage(url);
         builder.setColor(Color.ORANGE);
 
         commandEvent.reply(builder);
+        commandEvent.getMessage().delete().queue();
     }
 }

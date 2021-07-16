@@ -10,20 +10,22 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import java.awt.*;
 
 @CommandController
-public class SyncPanelCommand {
+public class PanelCommand {
 
-    @Command(value = {"panel"}, name = "Sync panel generator.", usage = "{prefix}panel", category = "Management")
+    @Command(value = "panel", name = "Sync panel generator.", usage = "{prefix}panel", category = "Management")
     public void onSync(CommandEvent event, @Optional String t) {
         if (event.getMember() != null && event.getMember().getId().equals(RobotPlugin.getInstance().getConfig().getString("settings.owner-id"))) {
             if (t != null) {
                 event.reply(new EmbedBuilder()
-                        .setTitle("**Verification**")
-                        .setDescription("React with the shield emoji to receive access to the discord server.")
-                        .setImage(RobotPlugin.getInstance().getLangMap().get("panel|image-url"))
-                        .setColor(Color.ORANGE), message -> {
+                                .setTitle("**Verification**")
+                                .setDescription("React with the shield emoji to receive access to the discord server.")
+                                .setImage(RobotPlugin.getInstance().getLangMap().get("panel|image-url"))
+                                .setColor(Color.ORANGE), message -> {
                             message.addReaction("\uD83D\uDEE1").queue();
                         }
                 );
+
+                event.getMessage().delete().queue();
                 return;
             }
 

@@ -1,4 +1,4 @@
-package com.solexgames.robot.command.moderation;
+package com.solexgames.robot.command;
 
 import com.github.kaktushose.jda.commands.annotations.Command;
 import com.github.kaktushose.jda.commands.annotations.CommandController;
@@ -19,9 +19,9 @@ import java.util.concurrent.TimeUnit;
  */
 
 @CommandController
-public class MuteCommand {
+public class UnmuteCommand {
 
-    @Command(value = "mute", name = "Mute command", desc = "Mute a player!", usage = "{prefix}mute <player> [-s]", category = "Moderation")
+    @Command(value = "unmute", name = "Unmute command", desc = "unmute a player!", usage = "{prefix}mute <player> [-s]", category = "Moderation")
     public void onCommand(CommandEvent commandEvent, String id, @Optional String silent) {
         final Member member = commandEvent.getMember();
 
@@ -44,16 +44,16 @@ public class MuteCommand {
 
         commandEvent.getGuild().getChannels().forEach(guildChannel -> {
             guildChannel.createPermissionOverride(target)
-                    .deny(Permission.MESSAGE_WRITE).queue();
+                    .grant(Permission.MESSAGE_WRITE).queue();
         });
 
         if (silent == null) {
             final EmbedBuilder builder = new EmbedBuilder();
 
-            builder.setTitle("**Muted**");
+            builder.setTitle("**Unmuted**");
             builder.setTimestamp(Instant.now());
             builder.setFooter(member.getEffectiveName(), member.getUser().getAvatarUrl());
-            builder.setDescription(target.getAsMention() + " has been permanently muted by " + member.getAsMention());
+            builder.setDescription(target.getAsMention() + " has been unmuted by " + member.getAsMention());
             builder.setColor(Color.GREEN);
 
             commandEvent.reply(builder);
