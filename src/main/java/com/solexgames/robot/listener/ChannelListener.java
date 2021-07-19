@@ -79,7 +79,7 @@ public class ChannelListener extends ListenerAdapter {
         final MessageChannel channel = event.getGuild().getTextChannelsByName("arrivals", true).get(0);
 
         if (channel != null) {
-            channel.sendMessage("Welcome to the PvPBar Discord Server, " + event.getMember().getAsMention() + "! <:pvpbar:849719227249065984>").queue();
+            channel.sendMessage("Welcome to the PvPBar Discord Server, " + event.getMember().getAsMention() + "! <:pvpbar:866698106351386674>").queue();
 
             CompletableFuture.supplyAsync(() -> event.getGuild().loadMembers().get())
                     .whenCompleteAsync((list, error) -> {
@@ -101,7 +101,7 @@ public class ChannelListener extends ListenerAdapter {
 
     @Override
     public void onGuildMessageReactionAdd(@NotNull GuildMessageReactionAddEvent event) {
-        if (event.getChannel().getName().equals("verify")) {
+        if (event.getChannel().getName().equals("verification")) {
             final Role role = event.getGuild().getRolesByName("Player", false).get(0);
 
             if (role == null) {

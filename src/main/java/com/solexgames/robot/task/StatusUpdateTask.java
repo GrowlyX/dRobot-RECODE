@@ -20,7 +20,7 @@ public class StatusUpdateTask implements Runnable {
 
     @Override
     public void run() {
-        RobotPlugin.getInstance().getDiscord().getPresence().setActivity(this.status.getActivity());
+        RobotPlugin.getInstance().getDiscord().getPresence().setActivity(this.status.getActivity() == null ? Activity.watching(GlobalStatusUpdateTask.GLOBAL_PLAYERS + " players online") : this.status.getActivity());
 
         this.status = Status.getNext(this.status);
     }
@@ -33,7 +33,7 @@ public class StatusUpdateTask implements Runnable {
         STORE(Activity.watching("store.pvp.bar")),
         DISCORD(Activity.watching("discord.gg/pvpbar")),
         TWITTER(Activity.watching("twitter.com/PvPBarMC")),
-        ONLINE(Activity.watching(GlobalStatusUpdateTask.GLOBAL_PLAYERS + " players online")),
+        ONLINE(null),
 
         ;
 
