@@ -1,18 +1,25 @@
 package com.solexgames.robot.listener;
 
 import com.solexgames.core.CorePlugin;
+import com.solexgames.core.util.SaltUtil;
 import com.solexgames.robot.RobotPlugin;
-import net.dv8tion.jda.api.entities.MessageChannel;
-import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
+import net.dv8tion.jda.api.events.guild.member.GuildMemberLeaveEvent;
 import net.dv8tion.jda.api.events.guild.member.update.GuildMemberUpdateBoostTimeEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
+import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionRemoveEvent;
+import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 
+import java.awt.*;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
@@ -29,6 +36,32 @@ public class ChannelListener extends ListenerAdapter {
             2900, 3000
     );
 
+    private static final Map<Long, String> MEMBER_CODE_MAP = new HashMap<>();
+
+    @Override
+    public void onPrivateMessageReceived(@NotNull PrivateMessageReceivedEvent event) {
+        final String rawMessage = event.getMessage().getContentRaw();
+
+        if (event.getAuthor() != null) {
+            final String code = ChannelListener.MEMBER_CODE_MAP.get(event.getAuthor().getIdLong());
+            final PrivateChannel privateChannel = event.getChannel();
+            final Guild guild = event.getJDA().getGuildById("866098426805354497");
+
+            if (rawMessage.equals(code)) {
+                final Role role = guild.getRolesByName("Player", false).get(0);
+
+                if (role != null) {
+                    guild.addRoleToMember(event.getAuthor().getIdLong(), role).queue();
+
+                    ChannelListener.MEMBER_CODE_MAP.remove(event.getAuthor().getIdLong());
+
+                    privateChannel.sendMessage("You've been verified in the **PvPBar Discord**, have fun!").queue();
+                } else {
+                    privateChannel.sendMessage("Something went wrong during verification.").queue();
+                }
+            }
+        }
+    }
 
     @Override
     public void onMessageReceived(@NotNull MessageReceivedEvent event) {
@@ -67,11 +100,30 @@ public class ChannelListener extends ListenerAdapter {
             }
         }
 
+        final int size = event.getMessage().getMentionedUsers().size();
+
+        if (size >= 10) {
+            event.getMessage().delete().queue();
+
+            final Role role = event.getGuild().getRolesByName("Muted", false).get(0);
+
+            if (role != null) {
+                event.getGuild().addRoleToMember(event.getMember(), role).queue(unused -> {
+                    event.getChannel().sendMessage("" + event.getMember().getAsMention() + " has been permanently muted for `pinging more than ten users`.").queue();
+                });
+            }
+        }
+
         final boolean isFiltered = CorePlugin.getInstance().getFilterManager().isMessageFiltered(null, rawMessage);
 
         if (isFiltered) {
             event.getMessage().delete().queue();
         }
+    }
+
+    @Override
+    public void onGuildMemberLeave(GuildMemberLeaveEvent event) {
+        ChannelListener.MEMBER_CODE_MAP.remove(event.getMember().getIdLong());
     }
 
     @Override
@@ -100,6 +152,25 @@ public class ChannelListener extends ListenerAdapter {
     }
 
     @Override
+    public void onGuildMessageReactionRemove(@NotNull GuildMessageReactionRemoveEvent event) {
+        if (event.getChannel().getName().equals("verification")) {
+            final Role role = event.getGuild().getRolesByName("Player", false).get(0);
+
+            if (role == null) {
+                event.getReaction().removeReaction().queue();
+                return;
+            }
+
+            if (event.getMember().getRoles().contains(role)) {
+                event.getReaction().removeReaction().queue();
+                return;
+            }
+
+            ChannelListener.MEMBER_CODE_MAP.remove(event.getMember().getIdLong());
+        }
+    }
+
+    @Override
     public void onGuildMessageReactionAdd(@NotNull GuildMessageReactionAddEvent event) {
         if (event.getChannel().getName().equals("verification")) {
             final Role role = event.getGuild().getRolesByName("Player", false).get(0);
@@ -114,16 +185,35 @@ public class ChannelListener extends ListenerAdapter {
                 return;
             }
 
-            event.getGuild().addRoleToMember(event.getMember(), role).queue();
-            event.getMember().getUser().openPrivateChannel().submit()
-                    .thenCompose(channel -> channel.sendMessage("You've been verified in the **PvPBar Discord**, have fun!").submit())
-                    .whenComplete((message, error) -> {
-                        if (error != null) {
-                            message.addReaction("\uD83C\uDF89").queue();
-                        }
-                    });
+            if (ChannelListener.MEMBER_CODE_MAP.get(event.getMember().getIdLong()) != null) {
+                event.getChannel().sendMessage(event.getMember().getAsMention() + ", you were sent a message by our bot. Check your direct messages for the code.").queue(message -> {
+                    message.delete().queueAfter(2L, TimeUnit.SECONDS);
+                });
 
-            event.getReaction().removeReaction().queue();
+                return;
+            }
+
+            event.getMember().getUser().openPrivateChannel().submit()
+                    .whenComplete((privateChannel, error) -> {
+                        final String generatedCode = SaltUtil.getRandomSaltedString(10);
+
+                        try {
+                            privateChannel.sendMessage(new EmbedBuilder()
+                                    .setTitle("**Verification**")
+                                    .setColor(Color.ORANGE)
+                                    .setDescription(String.join("\n",
+                                            "Please reply with the following code to become verified in the PvPBar Discord Server:",
+                                            "",
+                                            "Verification Code:",
+                                            "`" + generatedCode + "`"
+                                    ))
+                                    .build()
+                            ).queue();
+                        } catch (Exception ignored) {
+                        }
+
+                        ChannelListener.MEMBER_CODE_MAP.put(event.getMember().getIdLong(), generatedCode);
+                    });
         }
     }
 

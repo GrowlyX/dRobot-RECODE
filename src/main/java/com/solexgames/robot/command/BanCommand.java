@@ -17,7 +17,6 @@ import java.util.concurrent.TimeUnit;
  * @since 7/2/2021
  */
 
-@CommandController
 public class BanCommand {
 
     @Command(value = "ban", name = "Ban command", desc = "Ban a player!", usage = "{prefix}ban <player> <days> [optional: <reason>] [-s]", category = "Moderation")
