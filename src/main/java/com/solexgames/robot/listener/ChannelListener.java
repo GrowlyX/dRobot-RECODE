@@ -7,6 +7,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberLeaveEvent;
+import net.dv8tion.jda.api.events.guild.member.GuildMemberRoleRemoveEvent;
 import net.dv8tion.jda.api.events.guild.member.update.GuildMemberUpdateBoostTimeEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
@@ -106,10 +107,16 @@ public class ChannelListener extends ListenerAdapter {
             event.getMessage().delete().queue();
 
             final Role role = event.getGuild().getRolesByName("Muted", false).get(0);
+            final Role playerRole = event.getGuild().getRolesByName("Player", false).get(0);
 
-            if (role != null) {
+            if (role != null && playerRole != null) {
                 event.getGuild().addRoleToMember(event.getMember(), role).queue(unused -> {
-                    event.getChannel().sendMessage("" + event.getMember().getAsMention() + " has been permanently muted for `pinging more than ten users`.").queue();
+                    CorePlugin.getInstance().getJedisManager().runCommand(jedis -> {
+                        jedis.hset("discord_muted", event.getMember().getId(), "");
+                    });
+
+                    event.getGuild().removeRoleFromMember(event.getMember(), playerRole).queue();
+                    event.getChannel().sendMessage(event.getMember().getAsMention() + " has been permanently muted for `pinging more than ten users`.").queue();
                 });
             }
         }
@@ -133,6 +140,13 @@ public class ChannelListener extends ListenerAdapter {
         if (channel != null) {
             channel.sendMessage("Welcome to the PvPBar Discord Server, " + event.getMember().getAsMention() + "! <:pvpbar:866698106351386674>").queue();
 
+            CorePlugin.getInstance().getJedisManager().runCommand(jedis -> {
+                final boolean isMuted = jedis.hget("discord_muted", event.getMember().getId()) != null;
+                final Role role = event.getGuild().getRolesByName("Muted", false).get(0);
+
+                event.getGuild().addRoleToMember(event.getMember(), role).queue();
+            });
+
             CompletableFuture.supplyAsync(() -> event.getGuild().loadMembers().get())
                     .whenCompleteAsync((list, error) -> {
                         if (error != null) {
@@ -152,21 +166,13 @@ public class ChannelListener extends ListenerAdapter {
     }
 
     @Override
-    public void onGuildMessageReactionRemove(@NotNull GuildMessageReactionRemoveEvent event) {
-        if (event.getChannel().getName().equals("verification")) {
-            final Role role = event.getGuild().getRolesByName("Player", false).get(0);
+    public void onGuildMemberRoleRemove(@NotNull GuildMemberRoleRemoveEvent event) {
+        final Role role = event.getGuild().getRolesByName("Muted", false).get(0);
 
-            if (role == null) {
-                event.getReaction().removeReaction().queue();
-                return;
-            }
-
-            if (event.getMember().getRoles().contains(role)) {
-                event.getReaction().removeReaction().queue();
-                return;
-            }
-
-            ChannelListener.MEMBER_CODE_MAP.remove(event.getMember().getIdLong());
+        if (event.getRoles().contains(role)) {
+            CorePlugin.getInstance().getJedisManager().runCommand(jedis -> {
+                jedis.hdel("discord_muted", event.getMember().getId());
+            });
         }
     }
 
@@ -174,13 +180,14 @@ public class ChannelListener extends ListenerAdapter {
     public void onGuildMessageReactionAdd(@NotNull GuildMessageReactionAddEvent event) {
         if (event.getChannel().getName().equals("verification")) {
             final Role role = event.getGuild().getRolesByName("Player", false).get(0);
+            final Role muted = event.getGuild().getRolesByName("Muted", false).get(0);
 
-            if (role == null) {
+            if (role == null || muted == null) {
                 event.getReaction().removeReaction().queue();
                 return;
             }
 
-            if (event.getMember().getRoles().contains(role)) {
+            if (event.getMember().getRoles().contains(role) || event.getMember().getRoles().contains(muted)) {
                 event.getReaction().removeReaction().queue();
                 return;
             }
