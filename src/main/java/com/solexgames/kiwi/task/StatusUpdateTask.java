@@ -1,13 +1,10 @@
-package com.solexgames.robot.task;
+package com.solexgames.kiwi.task;
 
-import com.solexgames.hub.task.GlobalStatusUpdateTask;
-import com.solexgames.robot.RobotPlugin;
+//import com.solexgames.pear.task.GlobalStatusUpdateTask;
+import com.solexgames.kiwi.KiwiSpigotPlugin;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.Activity;
-
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * @author GrowlyX
@@ -20,7 +17,7 @@ public class StatusUpdateTask implements Runnable {
 
     @Override
     public void run() {
-        RobotPlugin.getInstance().getDiscord().getPresence().setActivity(this.status.getActivity() == null ? Activity.watching(GlobalStatusUpdateTask.GLOBAL_PLAYERS + " players online") : this.status.getActivity());
+        KiwiSpigotPlugin.getInstance().getDiscord().getPresence().setActivity(this.status.getActivity() == null ? Activity.watching(/*GlobalStatusUpdateTask.GLOBAL_PLAYERS +*/ "0 players online") : this.status.getActivity());
 
         this.status = Status.getNext(this.status);
     }
@@ -29,11 +26,10 @@ public class StatusUpdateTask implements Runnable {
     @RequiredArgsConstructor
     public enum Status {
 
-        WEBSITE(Activity.watching("www.pvp.bar")),
-        STORE(Activity.watching("store.pvp.bar")),
-        DISCORD(Activity.watching("discord.gg/pvpbar")),
-        TWITTER(Activity.watching("twitter.com/PvPBarMC")),
-        ONLINE(null),
+        WEBSITE(Activity.watching("www.123.com")),
+        STORE(Activity.watching("shop.123.com")),
+        DISCORD(Activity.watching("www.123.com/discord")),
+        TWITTER(Activity.watching("twitter.com/123")),
 
         ;
 

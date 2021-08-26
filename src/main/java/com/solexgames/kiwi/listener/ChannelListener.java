@@ -1,19 +1,21 @@
-package com.solexgames.robot.listener;
+package com.solexgames.kiwi.listener;
 
 import com.solexgames.core.CorePlugin;
 import com.solexgames.core.util.SaltUtil;
-import com.solexgames.robot.RobotPlugin;
+import com.solexgames.kiwi.KiwiSpigotPlugin;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberLeaveEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRoleRemoveEvent;
 import net.dv8tion.jda.api.events.guild.member.update.GuildMemberUpdateBoostTimeEvent;
+import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
-import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionRemoveEvent;
 import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.components.Button;
+import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
@@ -27,8 +29,6 @@ import java.util.regex.Pattern;
 
 @SuppressWarnings("all")
 public class ChannelListener extends ListenerAdapter {
-
-    private static final Pattern URL_PATTERN = Pattern.compile("^(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]");
 
     private static final List<Integer> MEMBER_BROADCASTS = Arrays.asList(
             100, 200, 300, 400, 500, 600, 700, 800, 900, 1000,
@@ -56,9 +56,9 @@ public class ChannelListener extends ListenerAdapter {
 
                     ChannelListener.MEMBER_CODE_MAP.remove(event.getAuthor().getIdLong());
 
-                    privateChannel.sendMessage("You've been verified in the **PvPBar Discord**, have fun!").queue();
+                    privateChannel.sendMessage("You've been verified in the **NoDebuff Discord**, have fun!").queue();
                 } else {
-                    privateChannel.sendMessage("Something went wrong during verification.").queue();
+                    privateChannel.sendMessage("Something went wrong whilst verifying you.").queue();
                 }
             }
         }
@@ -69,7 +69,19 @@ public class ChannelListener extends ListenerAdapter {
         final String channelName = event.getChannel().getName();
         final String rawMessage = event.getMessage().getContentRaw();
 
-        if (channelName.equals(RobotPlugin.getInstance().getLangMap().get("syncing|channel")) && !event.getMember().getUser().isBot()) {
+        if (channelName.equals("verification") && event.getMember().getId().equals("559497100296060939")) {
+            event.getChannel().sendMessage("__**Verification**__\n" +
+                    "You'll receive a private message from <@848959591475445781> asking you to reply with a randomly generated code once you've clicked the provided button.\n" +
+                    "\n" +
+                    "**I didn't receive any dm, what do I do?**\n" +
+                    "Please double-check your privacy settings and make sure you're allowing messages from server members. Once you've enabled them, rejoin our discord server to click the button again.\n" +
+                    "\n" +
+                    "Having trouble verifying? Create a ticket in #support." +
+                    ""
+            ).setActionRow(Button.primary("verify", "Click to Verify").withStyle(ButtonStyle.SUCCESS).withEmoji(Emoji.fromUnicode("✅"))).queue();
+        }
+
+        if (channelName.equals(KiwiSpigotPlugin.getInstance().getLangMap().get("syncing|channel")) && !event.getMember().getUser().isBot()) {
             event.getMessage().delete().queueAfter(2L, TimeUnit.SECONDS);
             return;
         }
@@ -138,13 +150,15 @@ public class ChannelListener extends ListenerAdapter {
         final MessageChannel channel = event.getGuild().getTextChannelsByName("arrivals", true).get(0);
 
         if (channel != null) {
-            channel.sendMessage("Welcome to the PvPBar Discord Server, " + event.getMember().getAsMention() + "! <:pvpbar:866698106351386674>").queue();
+            channel.sendMessage("Welcome to the NoDebuff Discord Server, " + event.getMember().getAsMention() + "! <:pvpbar:866698106351386674>").queue();
 
             CorePlugin.getInstance().getJedisManager().runCommand(jedis -> {
                 final boolean isMuted = jedis.hget("discord_muted", event.getMember().getId()) != null;
                 final Role role = event.getGuild().getRolesByName("Muted", false).get(0);
 
-                event.getGuild().addRoleToMember(event.getMember(), role).queue();
+                if (isMuted) {
+                    event.getGuild().addRoleToMember(event.getMember(), role).queue();
+                }
             });
 
             CompletableFuture.supplyAsync(() -> event.getGuild().loadMembers().get())
@@ -177,59 +191,50 @@ public class ChannelListener extends ListenerAdapter {
     }
 
     @Override
-    public void onGuildMessageReactionAdd(@NotNull GuildMessageReactionAddEvent event) {
-        if (event.getChannel().getName().equals("verification")) {
-            final Role role = event.getGuild().getRolesByName("Player", false).get(0);
-            final Role muted = event.getGuild().getRolesByName("Muted", false).get(0);
+    public void onButtonClick(@NotNull ButtonClickEvent event) {
+        final Role role = event.getGuild().getRolesByName("Player", false).get(0);
+        final Role muted = event.getGuild().getRolesByName("Muted", false).get(0);
 
-            if (role == null || muted == null) {
-                event.getReaction().removeReaction().queue();
-                return;
-            }
+        if (role == null || muted == null) {
+            return;
+        }
 
-            if (event.getMember().getRoles().contains(role) || event.getMember().getRoles().contains(muted)) {
-                event.getReaction().removeReaction().queue();
-                return;
-            }
+        if (event.getMember().getRoles().contains(role) || event.getMember().getRoles().contains(muted)) {
+            return;
+        }
 
-            if (ChannelListener.MEMBER_CODE_MAP.get(event.getMember().getIdLong()) != null) {
-                event.getChannel().sendMessage(event.getMember().getAsMention() + ", you were sent a message by our bot. Check your direct messages for the code.").queue(message -> {
+        if (ChannelListener.MEMBER_CODE_MAP.containsKey(event.getMember().getIdLong())) {
+            event.getChannel().sendMessage(event.getMember().getAsMention() + ", you were sent a message by our bot. Check your direct messages for the code.").queue(message -> {
+                message.delete().queueAfter(2L, TimeUnit.SECONDS);
+            });
+
+            return;
+        }
+
+        event.getMember().getUser().openPrivateChannel().submit().whenComplete((privateChannel, error) -> {
+            final String generatedCode = SaltUtil.getRandomSaltedString(10);
+
+            try {
+                privateChannel.sendMessage(new EmbedBuilder()
+                        .setTitle("**Verification**")
+                        .setColor(Color.CYAN)
+                        .setDescription(String.join("\n",
+                                "Please reply with the following code to become verified in the NoDebuff Discord Server:",
+                                "",
+                                "Verification Code:",
+                                "`" + generatedCode + "`"
+                        ))
+                        .build()
+                ).queue();
+
+                ChannelListener.MEMBER_CODE_MAP.put(event.getMember().getIdLong(), generatedCode);
+            } catch (Exception ignored) {
+                event.getChannel().sendMessage(event.getMember().getAsMention() + ", your messages are disabled.").queue(message -> {
                     message.delete().queueAfter(2L, TimeUnit.SECONDS);
                 });
-
-                return;
             }
 
-            event.getMember().getUser().openPrivateChannel().submit()
-                    .whenComplete((privateChannel, error) -> {
-                        final String generatedCode = SaltUtil.getRandomSaltedString(10);
 
-                        try {
-                            privateChannel.sendMessage(new EmbedBuilder()
-                                    .setTitle("**Verification**")
-                                    .setColor(Color.ORANGE)
-                                    .setDescription(String.join("\n",
-                                            "Please reply with the following code to become verified in the PvPBar Discord Server:",
-                                            "",
-                                            "Verification Code:",
-                                            "`" + generatedCode + "`"
-                                    ))
-                                    .build()
-                            ).queue();
-                        } catch (Exception ignored) {
-                        }
-
-                        ChannelListener.MEMBER_CODE_MAP.put(event.getMember().getIdLong(), generatedCode);
-                    });
-        }
-    }
-
-    @Override
-    public void onGuildMemberUpdateBoostTime(GuildMemberUpdateBoostTimeEvent event) {
-        final MessageChannel channel = event.getGuild().getTextChannelsByName("boosts", true).get(0);
-
-        if (channel != null) {
-            channel.sendMessage("Thanks for boosting our discord server, " + event.getMember().getAsMention() + "! <:nitro:839714027423793182>").queue();
-        }
+        });
     }
 }

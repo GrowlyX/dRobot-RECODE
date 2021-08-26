@@ -1,6 +1,6 @@
-package com.solexgames.robot.commons.impl;
+package com.solexgames.kiwi.commons.impl;
 
-import com.solexgames.robot.commons.AbstractUser;
+import com.solexgames.kiwi.commons.AbstractUser;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;

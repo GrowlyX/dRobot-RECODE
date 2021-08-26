@@ -1,55 +1,70 @@
-package com.solexgames.robot;
+package com.solexgames.kiwi;
 
-import com.github.kaktushose.jda.commands.entities.JDACommandsBuilder;
+import cloud.commandframework.annotations.AnnotationParser;
+import cloud.commandframework.arguments.parser.ParserParameters;
+import cloud.commandframework.arguments.parser.StandardParameters;
+import cloud.commandframework.execution.CommandExecutionCoordinator;
+import cloud.commandframework.jda.JDA4CommandManager;
+import cloud.commandframework.jda.JDAGuildSender;
+import cloud.commandframework.jda.JDAPrivateSender;
+import cloud.commandframework.meta.CommandMeta;
 import com.solexgames.core.CorePlugin;
+import com.solexgames.core.util.BukkitUtil;
 import com.solexgames.core.util.UUIDUtil;
 import com.solexgames.lib.commons.redis.JedisBuilder;
-import com.solexgames.robot.command.PanelCommand;
-import com.solexgames.robot.commons.AbstractUser;
-import com.solexgames.robot.listener.ChannelListener;
-import com.solexgames.robot.listener.ReactionRolesListener;
-import com.solexgames.robot.redis.RedisListener;
-import com.solexgames.robot.task.StatusUpdateTask;
+import com.solexgames.kiwi.commons.AbstractUser;
+import com.solexgames.kiwi.commons.annotation.RegisteredCommand;
+import com.solexgames.kiwi.commons.impl.PrivateCommonsUser;
+import com.solexgames.kiwi.commons.impl.PublicCommonsUser;
+import com.solexgames.kiwi.listener.ChannelListener;
+import com.solexgames.kiwi.listener.ReactionRolesListener;
+import com.solexgames.kiwi.redis.RedisListener;
+import com.solexgames.kiwi.task.StatusUpdateTask;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.SneakyThrows;
 import me.lucko.helper.Commands;
-import me.lucko.helper.command.CommandInterruptException;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import org.bukkit.ChatColor;
-import org.bukkit.material.Gate;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import javax.security.auth.login.LoginException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 
 /**
  * @author GrowlyX
  * @since 3/3/2021
- *         <p>
- *         Holds instances to anything important.
+ * <p>
+ * Holds instances to anything important.
  */
 
 @Getter
 @Setter
-public final class RobotPlugin extends JavaPlugin {
+public final class KiwiSpigotPlugin extends JavaPlugin {
 
     @Getter
-    private static RobotPlugin instance;
-    private final Map<String, String> langMap = new HashMap<>();
+    private static KiwiSpigotPlugin instance;
+
     private JDA discord;
 
     private String mainHex;
     private String supportRole;
 
+    private final Map<String, String> langMap = new HashMap<>();
+
+    @SneakyThrows
     @Override
     public void onEnable() {
         instance = this;
@@ -83,43 +98,95 @@ public final class RobotPlugin extends JavaPlugin {
 
             System.exit(0);
         } finally {
-            JDACommandsBuilder.start(this.discord, this.langMap.get("settings|prefix"));
+            final JDA4CommandManager<AbstractUser> commandManager = new JDA4CommandManager<>(
+                    this.discord,
+                    message -> this.langMap.get("settings|prefix"),
+                    (sender, permission) -> {
+                        final String[] splitRoles = permission.split("\\|");
+                        final List<Role> roleList = new ArrayList<>();
 
-//            final JDA4CommandManager<AbstractUser> commandManager = new JDA4CommandManager<>(
-//                    jda,
-//                    message -> "!",
-//                    (sender, permission) -> permissionRegistry.hasPermission(sender.getUser().getIdLong(), permission),
-//                    CommandExecutionCoordinator.simpleCoordinator(),
-//                    sender -> {
-//                        MessageReceivedEvent event = sender.getEvent().orElse(null);
-//
-//                        if (sender instanceof JDAPrivateSender) {
-//                            JDAPrivateSender jdaPrivateSender = (JDAPrivateSender) sender;
-//                            return new PrivateUser(event, jdaPrivateSender.getUser(), jdaPrivateSender.getPrivateChannel());
-//                        }
-//
-//                        if (sender instanceof JDAGuildSender) {
-//                            JDAGuildSender jdaGuildSender = (JDAGuildSender) sender;
-//                            return new GuildUser(event, jdaGuildSender.getMember(), jdaGuildSender.getTextChannel());
-//                        }
-//
-//                        throw new UnsupportedOperationException();
-//                    },
-//                    user -> {
-//                        MessageReceivedEvent event = user.getEvent().orElse(null);
-//                        if (user instanceof PrivateUser) {
-//                            PrivateUser privateUser = (PrivateUser) user;
-//                            return new JDAPrivateSender(event, privateUser.getUser(), privateUser.getPrivateChannel());
-//                        }
-//
-//                        if (user instanceof GuildUser) {
-//                            GuildUser guildUser = (GuildUser) user;
-//                            return new JDAGuildSender(event, guildUser.getMember(), guildUser.getTextChannel());
-//                        }
-//
-//                        throw new UnsupportedOperationException();
-//                    }
-//            );
+                        for (final String splitRole : splitRoles) {
+                            sender.getEvent().ifPresent(messageReceivedEvent -> {
+                                final Guild guild = messageReceivedEvent.getGuild();
+                                final List<Role> role = guild.getRolesByName(splitRole, true);
+
+                                if (!role.isEmpty() && role.get(0) != null) {
+                                    roleList.add(role.get(0));
+                                }
+                            });
+                        }
+
+                        final Member member = sender.getMessage().getMember();
+
+                        if (member == null) {
+                            return false;
+                        }
+
+                        final List<Role> roles = member.getRoles();
+
+                        boolean hasPermission = false;
+
+                        for (final Role role : roleList) {
+                            if (roles.contains(role)) {
+                                hasPermission = true;
+                                break;
+                            }
+                        }
+
+                        return hasPermission;
+                    },
+                    CommandExecutionCoordinator.simpleCoordinator(),
+                    sender -> {
+                        final MessageReceivedEvent event = sender.getEvent().orElse(null);
+
+                        if (sender instanceof JDAPrivateSender) {
+                            final JDAPrivateSender jdaPrivateSender = (JDAPrivateSender) sender;
+                            return new PrivateCommonsUser(event, jdaPrivateSender.getUser(), jdaPrivateSender.getPrivateChannel());
+                        }
+
+                        if (sender instanceof JDAGuildSender) {
+                            final JDAGuildSender jdaGuildSender = (JDAGuildSender) sender;
+                            return new PublicCommonsUser(event, jdaGuildSender.getMember(), jdaGuildSender.getTextChannel());
+                        }
+
+                        throw new UnsupportedOperationException();
+                    },
+                    user -> {
+                        final MessageReceivedEvent event = user.getEvent().orElse(null);
+
+                        if (user instanceof PrivateCommonsUser) {
+                            PrivateCommonsUser privateUser = (PrivateCommonsUser) user;
+                            return new JDAPrivateSender(event, privateUser.getUser(), privateUser.getPrivateChannel());
+                        }
+
+                        if (user instanceof PublicCommonsUser) {
+                            PublicCommonsUser guildUser = (PublicCommonsUser) user;
+                            return new JDAGuildSender(event, guildUser.getMember(), guildUser.getTextChannel());
+                        }
+
+                        throw new UnsupportedOperationException();
+                    }
+            );
+
+            final Function<ParserParameters, CommandMeta> commandMetaFunction = p ->
+                    CommandMeta.simple()
+                            .with(CommandMeta.DESCRIPTION, p.get(StandardParameters.DESCRIPTION, "No description"))
+                            .build();
+            final AnnotationParser<AbstractUser> abstractUserAnnotationParser = new AnnotationParser<>(
+                    commandManager,
+                    AbstractUser.class,
+                    commandMetaFunction
+            );
+
+            BukkitUtil.getClassesInPackage(this, "com.solexgames.robot").forEach(aClass -> {
+                if (aClass.isAnnotationPresent(RegisteredCommand.class)) {
+                    try {
+                        abstractUserAnnotationParser.parse(aClass.newInstance());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
         }
 
         Commands.create().assertConsole()

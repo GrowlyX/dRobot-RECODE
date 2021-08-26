@@ -1,8 +1,8 @@
-package com.solexgames.robot.listener;
+package com.solexgames.kiwi.listener;
 
 import com.solexgames.core.listener.custom.ServerDeleteEvent;
 import com.solexgames.core.listener.custom.ServerRetrieveEvent;
-import com.solexgames.robot.RobotPlugin;
+import com.solexgames.kiwi.KiwiSpigotPlugin;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -22,7 +22,7 @@ public class ReactionRolesListener extends ListenerAdapter implements Listener {
 
     @EventHandler
     public void onServerOnline(ServerRetrieveEvent event) {
-        final TextChannel textChannel = RobotPlugin.getInstance().getDiscord().getGuilds().get(0)
+        final TextChannel textChannel = KiwiSpigotPlugin.getInstance().getDiscord().getGuilds().get(0)
                 .getTextChannelsByName("server-update", true).get(0);
 
         if (textChannel != null) {
@@ -32,7 +32,7 @@ public class ReactionRolesListener extends ListenerAdapter implements Listener {
 
     @EventHandler
     public void onServerOffline(ServerDeleteEvent event) {
-        final TextChannel textChannel = RobotPlugin.getInstance().getDiscord().getGuilds().get(0)
+        final TextChannel textChannel = KiwiSpigotPlugin.getInstance().getDiscord().getGuilds().get(0)
                 .getTextChannelsByName("server-update", true).get(0);
 
         if (textChannel != null) {

@@ -1,4 +1,4 @@
-package com.solexgames.robot.util;
+package com.solexgames.kiwi.util;
 
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;

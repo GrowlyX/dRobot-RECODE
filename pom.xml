@@ -5,8 +5,8 @@
     <modelVersion>4.0.0</modelVersion>
     <packaging>jar</packaging>
 
-    <groupId>com.solexgames.robot</groupId>
-    <artifactId>Indium</artifactId>
+    <groupId>com.solexgames</groupId>
+    <artifactId>Kiwi</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <properties>
@@ -17,6 +17,37 @@
     <build>
         <plugins>
             <plugin>
+                <groupId>pl.project13.maven</groupId>
+                <artifactId>git-commit-id-plugin</artifactId>
+                <version>4.0.0</version>
+
+                <executions>
+                    <execution>
+                        <id>get-the-git-infos</id>
+                        <goals>
+                            <goal>revision</goal>
+                        </goals>
+                        <phase>initialize</phase>
+                    </execution>
+                </executions>
+
+                <configuration>
+                    <generateGitPropertiesFile>true</generateGitPropertiesFile>
+                    <generateGitPropertiesFilename>${project.build.outputDirectory}/com/solexgames/settings/settings.json</generateGitPropertiesFilename>
+                    <commitIdGenerationMode>full</commitIdGenerationMode>
+                    <format>json</format>
+
+                    <includeOnlyProperties>
+                        <includeOnlyProperty>^git.build.(time|version)$</includeOnlyProperty>
+                        <includeOnlyProperty>^git.commit.id.(abbrev|full)$</includeOnlyProperty>
+                        <includeOnlyProperty>^git.commit.message.full$</includeOnlyProperty>
+                    </includeOnlyProperties>
+
+                    <commitIdGenerationMode>full</commitIdGenerationMode>
+                </configuration>
+            </plugin>
+
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.1</version>
@@ -25,6 +56,7 @@
                     <target>${java.version}</target>
                 </configuration>
             </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
@@ -42,15 +74,23 @@
                 </executions>
             </plugin>
         </plugins>
+
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
                 <filtering>true</filtering>
             </resource>
         </resources>
+
+        <finalName>Kiwi</finalName>
     </build>
 
     <repositories>
+        <repository>
+            <id>dv8tion</id>
+            <name>m2-dv8tion</name>
+            <url>https://m2.dv8tion.net/releases</url>
+        </repository>
         <repository>
             <id>incendo-snapshots</id>
             <url>https://repo.incendo.org/content/repositories/snapshots</url>
@@ -70,11 +110,11 @@
     </repositories>
 
     <dependencies>
-<!--        <dependency>-->
-<!--            <groupId>cloud.commandframework</groupId>-->
-<!--            <artifactId>cloud-jda</artifactId>-->
-<!--            <version>1.5.0</version>-->
-<!--        </dependency>-->
+        <dependency>
+            <groupId>cloud.commandframework</groupId>
+            <artifactId>cloud-jda</artifactId>
+            <version>1.5.0</version>
+        </dependency>
         <dependency>
             <groupId>cloud.commandframework</groupId>
             <artifactId>cloud-annotations</artifactId>
@@ -102,11 +142,11 @@
             <systemPath>${basedir}/lib/commonslibs-bukkit.jar</systemPath>
         </dependency>
         <dependency>
-            <groupId>com.solexgames.hub</groupId>
-            <artifactId>Neon</artifactId>
+            <groupId>com.solexgames.pear</groupId>
+            <artifactId>Pear</artifactId>
             <version>LATEST</version>
             <scope>system</scope>
-            <systemPath>${basedir}/lib/Neon.jar</systemPath>
+            <systemPath>${basedir}/lib/Pear.jar</systemPath>
         </dependency>
 
         <dependency>
@@ -118,12 +158,7 @@
         <dependency>
             <groupId>net.dv8tion</groupId>
             <artifactId>JDA</artifactId>
-            <version>4.2.0_219</version>
-        </dependency>
-        <dependency>
-            <groupId>com.github.Kaktushose</groupId>
-            <artifactId>jda-commands</artifactId>
-            <version>1.1.1</version>
+            <version>4.3.0_277</version>
         </dependency>
     </dependencies>
 </project>

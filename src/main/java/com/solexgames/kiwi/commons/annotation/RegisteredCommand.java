@@ -1,4 +1,4 @@
-package com.solexgames.robot.commons.annotation;
+package com.solexgames.kiwi.commons.annotation;
 
 /**
  * @author GrowlyX

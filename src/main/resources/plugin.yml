@@ -1,6 +1,6 @@
-name: Indium
+name: Kiwi
 version: ${git.commit.id.abbrev}
-main: com.solexgames.robot.RobotPlugin
+main: com.solexgames.kiwi.KiwiSpigotPlugin
 
 author: SolexGames
 website: https://solexgames.com

@@ -1,4 +1,4 @@
-package com.solexgames.robot.util;
+package com.solexgames.kiwi.util;
 
 import lombok.experimental.UtilityClass;
 import net.dv8tion.jda.api.EmbedBuilder;

@@ -1,9 +1,9 @@
-package com.solexgames.robot.redis;
+package com.solexgames.kiwi.redis;
 
 import com.solexgames.lib.commons.redis.annotation.Subscription;
 import com.solexgames.lib.commons.redis.handler.JedisHandler;
 import com.solexgames.lib.commons.redis.json.JsonAppender;
-import com.solexgames.robot.RobotPlugin;
+import com.solexgames.kiwi.KiwiSpigotPlugin;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -22,10 +22,10 @@ public class RedisListener implements JedisHandler {
     @Subscription(action = "EMBED_SEND")
     public void onEmbedSend(JsonAppender jsonAppender) {
         final String channelId = jsonAppender.getParam("CHANNEL");
-        final Guild guild = RobotPlugin.getInstance().getDiscord().getGuildById("839430242908504075");
+        final Guild guild = KiwiSpigotPlugin.getInstance().getDiscord().getGuildById("866098426805354497");
 
         if (guild == null) {
-            Logger.getGlobal().info("[Robot] [Jedis] PvPBar guild null? Update dRobot");
+            Logger.getGlobal().info("[Robot] [Jedis] NoDebuff guild null? Update Kiwi");
             return;
         }
 
